@@ -37,6 +37,7 @@
     <Reference Include="Autofac, Version=4.4.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.4.4.0\lib\net45\Autofac.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
     <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -57,6 +58,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\BCL\BCL.DataAccess\BCL.DataAccess.csproj">
+      <Project>{CEC84E11-1D4E-4F2E-9BFC-8AB24FE326A0}</Project>
+      <Name>BCL.DataAccess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\BCL\BCL.ToolLibWithApp\BCL.ToolLibWithApp.csproj">
       <Project>{12B47589-A4DA-4A76-A187-723CBAC3F98D}</Project>
       <Name>BCL.ToolLibWithApp</Name>

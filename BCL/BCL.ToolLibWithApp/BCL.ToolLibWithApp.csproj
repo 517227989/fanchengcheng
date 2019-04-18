@@ -239,6 +239,7 @@
     <Compile Include="UPP\Entity\Face\UPPFaceUserQuery.cs" />
     <Compile Include="UPP\UPPNotify.cs" />
     <Compile Include="UPP\UPPToolBox.cs" />
+    <Compile Include="XAI\Entity\XAIAddGroup.cs" />
     <Compile Include="XAI\Entity\XAIFAdd.cs" />
     <Compile Include="XAI\Entity\XAIFDel.cs" />
     <Compile Include="XAI\Entity\XAIFGet.cs" />
@@ -247,6 +248,7 @@
     <Compile Include="XAI\Entity\XAIBase.cs" />
     <Compile Include="XAI\Entity\XAIFMod.cs" />
     <Compile Include="XAI\XAIConfig.cs" />
+    <Compile Include="XAI\XAIException.cs" />
     <Compile Include="XAI\XAIToolBox.cs" />
   </ItemGroup>
   <ItemGroup>

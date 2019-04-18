@@ -40,7 +40,7 @@ namespace XAI.Provider.Modules
         /// 
         /// </summary>
         /// <param name="rootPath"></param>
-        public UPPModule(string rootPath)
+        public XAIModule(string rootPath)
             : base(rootPath)
         {
 
@@ -88,7 +88,7 @@ namespace XAI.Provider.Modules
                             return ResCode.业务错误.XAIAckOfBiz("not found authlog,id=" + _Req.RowId).ToJson();
                         //人脸对比
                         var resAuth = _Business.Auth(biz);
-                        biz.UserId = "Face_" + biz.UserInfo.PaperWorkNo + DateTime.Now;
+                        biz.UserId = Snowflake.Instance().GetId().ToString();
                         //插一条人员表
                         var dbPatient = new Db_Patient()
                         {
@@ -109,7 +109,7 @@ namespace XAI.Provider.Modules
                         //循环图片插入图片和人脸表
                         biz.Images.ForEach(f =>
                         {
-                            var dbImage = new Db_Image() { ImageId = "Ig".CreateKey(), Image = f.Image };
+                            var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = f.Image };
                             f.ImageId = dbImage.ImageId;
                             dbContext.Entry(dbImage).State = EntityState.Added;
                             var reqFAdd = new XAIReqFAdd()
@@ -168,7 +168,7 @@ namespace XAI.Provider.Modules
 
                     using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
                     {
-                        var dbImage = new Db_Image() { ImageId = "Ig".CreateKey(), Image = biz.Image };
+                        var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = biz.Image };
                         dbContext.Entry(dbImage).State = EntityState.Added;
                         dbContext.SaveChanges();
                         var resFind = _Business.Find(biz);
@@ -229,7 +229,7 @@ namespace XAI.Provider.Modules
                         biz.GroupId = dbface.GroupId;
                         if (!biz.Image.IsNullOrEmptyOfVar())
                         {
-                            var dbImage = new Db_Image() { ImageId = "Ig".CreateKey(), Image = biz.Image };
+                            var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = biz.Image };
                             dbContext.Entry(dbImage).State = EntityState.Added;
                             var resFMod = _Business.FMod(biz);
                             dbface.ImageId = dbImage.ImageId;
