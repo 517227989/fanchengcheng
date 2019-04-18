@@ -1,0 +1,222 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{CEC84E11-1D4E-4F2E-9BFC-8AB24FE326A0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BCL.DataAccess</RootNamespace>
+    <AssemblyName>BCL.DataAccess</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=4.4.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.4.0\lib\net45\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net45\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.6.9.9\lib\net45\MySql.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="MySql.Data.Entity.EF6, Version=6.9.9.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+      <HintPath>..\packages\MySql.Data.Entity.6.9.9\lib\net45\MySql.Data.Entity.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess, Version=4.122.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Oracle.ManagedDataAccess.12.2.1100\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.ManagedDataAccess.EntityFramework, Version=6.122.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
+      <HintPath>..\packages\Oracle.ManagedDataAccess.EntityFramework.12.2.1100\lib\net45\Oracle.ManagedDataAccess.EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DbContextContainer.cs" />
+    <Compile Include="DbEntity\ACT\Db_Customer.cs" />
+    <Compile Include="DbEntity\APP\Db_BedReserve.cs" />
+    <Compile Include="DbEntity\APP\Db_NotifyTemplate.cs" />
+    <Compile Include="DbEntity\APP\Db_Order.cs" />
+    <Compile Include="DbEntity\APP\Db_Statistics.cs" />
+    <Compile Include="DbEntity\APP\Db_TaskGroup.cs" />
+    <Compile Include="DbEntity\APP\Db_FeedBack.cs" />
+    <Compile Include="DbEntity\APP\Db_HospitalConfig.cs" />
+    <Compile Include="DbEntity\APP\Db_HotDepts.cs" />
+    <Compile Include="DbEntity\APP\Db_MyAttention.cs" />
+    <Compile Include="DbEntity\APP\Db_News.cs" />
+    <Compile Include="DbEntity\APP\Db_Resrecordes.cs" />
+    <Compile Include="DbEntity\APP\Db_User.cs" />
+    <Compile Include="DbEntity\APP\Db_VerifyCode.cs" />
+    <Compile Include="DbEntity\APP\Db_VisitorForHospital.cs" />
+    <Compile Include="DbEntity\APP\Db_Visitors.cs" />
+    <Compile Include="DbEntity\Db_Agreement.cs" />
+    <Compile Include="DbEntity\Db_App.cs" />
+    <Compile Include="DbEntity\Db_AppDetail.cs" />
+    <Compile Include="DbEntity\Db_Application.cs" />
+    <Compile Include="DbEntity\Db_AppLink.cs" />
+    <Compile Include="DbEntity\Db_AppLog.cs" />
+    <Compile Include="DbEntity\Db_AppOrder.cs" />
+    <Compile Include="DbEntity\Db_Base.cs" />
+    <Compile Include="DbEntity\Db_ClearResult.cs" />
+    <Compile Include="DbEntity\Db_DataPermit.cs" />
+    <Compile Include="DbEntity\Db_Developers.cs" />
+    <Compile Include="DbEntity\Db_Dictionarys.cs" />
+    <Compile Include="DbEntity\Db_Dictionary_Item.cs" />
+    <Compile Include="DbEntity\Db_Group.cs" />
+    <Compile Include="DbEntity\Db_Group_Members.cs" />
+    <Compile Include="DbEntity\Db_Group_Permit.cs" />
+    <Compile Include="DbEntity\Db_Hospitals.cs" />
+    <Compile Include="DbEntity\Db_JobManager.cs" />
+    <Compile Include="DbEntity\Db_Kiosks.cs" />
+    <Compile Include="DbEntity\Db_Menus.cs" />
+    <Compile Include="DbEntity\Db_MisPosRefund.cs" />
+    <Compile Include="DbEntity\Db_Params.cs" />
+    <Compile Include="DbEntity\Db_Privileges.cs" />
+    <Compile Include="DbEntity\Db_ReceiptTemp.cs" />
+    <Compile Include="DbEntity\Db_BillDetail_Channel.cs" />
+    <Compile Include="DbEntity\Db_BillDetail_Hospital.cs" />
+    <Compile Include="DbEntity\Db_ReconcileConfig.cs" />
+    <Compile Include="DbEntity\Db_ReconcileResult.cs" />
+    <Compile Include="DbEntity\Db_ReconTemp.cs" />
+    <Compile Include="DbEntity\Db_Roles.cs" />
+    <Compile Include="DbEntity\Db_Satissurveyresult.cs" />
+    <Compile Include="DbEntity\Db_SystemLogs.cs" />
+    <Compile Include="DbEntity\Db_UserRoles.cs" />
+    <Compile Include="DbEntity\Db_Users.cs" />
+    <Compile Include="DbEntity\Db_User_AppPermit.cs" />
+    <Compile Include="DbEntity\Db_User_HotMenus.cs" />
+    <Compile Include="DbEntity\Db_V_DataPermit.cs" />
+    <Compile Include="DbEntity\Db_V_Group_Permits.cs" />
+    <Compile Include="DbEntity\Db_V_PermitUser.cs" />
+    <Compile Include="DbEntity\Db_V_UserHosPermit.cs" />
+    <Compile Include="DbEntity\Db_V_User_Permits.cs" />
+    <Compile Include="DbEntity\ESB\Db_ScreenToNurse.cs" />
+    <Compile Include="DbEntity\ESB\Db_Base.cs" />
+    <Compile Include="DbEntity\ESB\Db_CallInfo.cs" />
+    <Compile Include="DbEntity\ESB\Db_CallInfo_Room.cs" />
+    <Compile Include="DbEntity\ESB\Db_CnChar.cs" />
+    <Compile Include="DbEntity\ESB\Db_CpuDetails.cs" />
+    <Compile Include="DbEntity\ESB\Db_DataBaseStatus.cs" />
+    <Compile Include="DbEntity\ESB\Db_Department.cs" />
+    <Compile Include="DbEntity\ESB\Db_Dept.cs" />
+    <Compile Include="DbEntity\ESB\Db_DiskDetails.cs" />
+    <Compile Include="DbEntity\ESB\Db_Doctor.cs" />
+    <Compile Include="DbEntity\ESB\Db_DoctorAuthorizeDept.cs" />
+    <Compile Include="DbEntity\ESB\Db_DoctorLoginInfo.cs" />
+    <Compile Include="DbEntity\ESB\Db_Drug.cs" />
+    <Compile Include="DbEntity\ESB\Db_EmpiDetails.cs" />
+    <Compile Include="DbEntity\ESB\Db_EmpiIndex.cs" />
+    <Compile Include="DbEntity\ESB\Db_ExamPatient.cs" />
+    <Compile Include="DbEntity\ESB\Db_ExceptionMessage.cs" />
+    <Compile Include="DbEntity\ESB\Db_FunConfigGroup.cs" />
+    <Compile Include="DbEntity\ESB\Db_FunConfigGroup_Devices.cs" />
+    <Compile Include="DbEntity\ESB\Db_FunConfigGroup_FunItem.cs" />
+    <Compile Include="DbEntity\ESB\Db_Group.cs" />
+    <Compile Include="DbEntity\ESB\Db_Group_Member.cs" />
+    <Compile Include="DbEntity\ESB\Db_JobLog.cs" />
+    <Compile Include="DbEntity\ESB\Db_Kiosk.cs" />
+    <Compile Include="DbEntity\ESB\Db_KioskState.cs" />
+    <Compile Include="DbEntity\ESB\Db_Medical.cs" />
+    <Compile Include="DbEntity\ESB\Db_MemoryDetails.cs" />
+    <Compile Include="DbEntity\ESB\Db_NurseStation.cs" />
+    <Compile Include="DbEntity\ESB\Db_Package.cs" />
+    <Compile Include="DbEntity\ESB\Db_Param.cs" />
+    <Compile Include="DbEntity\ESB\Db_PrintInfo.cs" />
+    <Compile Include="DbEntity\ESB\Db_ReceiptTemp.cs" />
+    <Compile Include="DbEntity\ESB\Db_RegDev.cs" />
+    <Compile Include="DbEntity\ESB\Db_RegDevAuthorizeTrade.cs" />
+    <Compile Include="DbEntity\ESB\Db_RegPatientList.cs" />
+    <Compile Include="DbEntity\ESB\Db_RollAccDetails.cs" />
+    <Compile Include="DbEntity\ESB\Db_RollAccSummary.cs" />
+    <Compile Include="DbEntity\ESB\Db_RoomInfo.cs" />
+    <Compile Include="DbEntity\ESB\Db_RoomScheduling.cs" />
+    <Compile Include="DbEntity\ESB\Db_Satissurveyindex.cs" />
+    <Compile Include="DbEntity\ESB\Db_Scheduling.cs" />
+    <Compile Include="DbEntity\ESB\Db_ScreenInfo.cs" />
+    <Compile Include="DbEntity\ESB\Db_Sequence.cs" />
+    <Compile Include="DbEntity\ESB\Db_TPartyDept.cs" />
+    <Compile Include="DbEntity\ESB\Db_Trade.cs" />
+    <Compile Include="DbEntity\ESB\Db_TradeDetail.cs" />
+    <Compile Include="DbEntity\ESB\Db_TradeLog.cs" />
+    <Compile Include="DbEntity\ESB\Db_User.cs" />
+    <Compile Include="DbEntity\ESB\DB_V_GMember.cs" />
+    <Compile Include="DbEntity\ESB\Db_V_Menu.cs" />
+    <Compile Include="DbEntity\ESB\Db_V_PermitUser.cs" />
+    <Compile Include="DbEntity\ESB\Db_V_UserFunPermit.cs" />
+    <Compile Include="DbEntity\MIP\Db_MediDetails.cs" />
+    <Compile Include="DbEntity\MIP\Db_MediOrders.cs" />
+    <Compile Include="DbEntity\MIP\Db_MediPersons.cs" />
+    <Compile Include="DbEntity\MIP\Db_MediRecords.cs" />
+    <Compile Include="DbEntity\SMS\Db_Details.cs" />
+    <Compile Include="DbEntity\SSP\Db_Json.cs" />
+    <Compile Include="DbEntity\SSP\Db_Machine.cs" />
+    <Compile Include="DbEntity\SSP\Db_Machine2.cs" />
+    <Compile Include="DbEntity\SSP\Db_MachineGroupModel.cs" />
+    <Compile Include="DbEntity\SSP\Db_MachineMenu.cs" />
+    <Compile Include="DbEntity\SSP\Db_MenuJson.cs" />
+    <Compile Include="DbEntity\SSP\Db_Statistics.cs" />
+    <Compile Include="DbEntity\SSP\Db_TermMonitor.cs" />
+    <Compile Include="DbEntity\XAI\Db_FApp.cs" />
+    <Compile Include="DbEntity\XAI\Db_AuthChange.cs" />
+    <Compile Include="DbEntity\XAI\Db_AuthLog.cs" />
+    <Compile Include="DbEntity\XAI\Db_Face.cs" />
+    <Compile Include="DbEntity\XAI\Db_IdentLog.cs" />
+    <Compile Include="DbEntity\XAI\Db_Image.cs" />
+    <Compile Include="DbEntity\XAI\Db_Patient.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BCL.ToolLib\BCL.ToolLib.csproj">
+      <Project>{4c44c85d-be18-41f0-8a76-2c9ee95ded1e}</Project>
+      <Name>BCL.ToolLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

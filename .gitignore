@@ -3,3 +3,20 @@
 ################################################################################
 
 /BCL/BCL.DataAccess/obj/Debug
+/BCL/packages
+/BCL/.vs/BCL/v15
+/BCL/BCL.DataAccess/bin
+/BCL/BCL.DataAccess/obj/Release
+/BCL/BCL.ToolLib/bin
+/BCL/BCL.ToolLib/obj
+/BCL/BCL.ToolLibWithApp/bin
+/BCL/BCL.ToolLibWithApp/obj
+/BCL/BCL.v12.suo
+/XAI/.vs/XAI/v15
+/XAI/packages
+/XAI/XAI.Business/bin/Debug
+/XAI/XAI.Business/obj/Debug
+/XAI/XAI.Process/bin/Debug
+/XAI/XAI.Process/obj/Debug
+/XAI/XAI.Provider/bin/Debug
+/XAI/XAI.Provider/obj/Debug

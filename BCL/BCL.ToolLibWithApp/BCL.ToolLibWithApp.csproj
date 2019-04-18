@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{12B47589-A4DA-4A76-A187-723CBAC3F98D}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BCL.ToolLibWithApp</RootNamespace>
+    <AssemblyName>BCL.ToolLibWithApp</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=4.4.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.4.0\lib\net45\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net45\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ESB\Entity\Assignation\AutoRoomScheduling.cs" />
+    <Compile Include="ESB\Entity\Assignation\CallAgain.cs" />
+    <Compile Include="ESB\Entity\Assignation\CallNext.cs" />
+    <Compile Include="ESB\Entity\Assignation\CheckedPatientList.cs" />
+    <Compile Include="ESB\Entity\Assignation\CheckFeasibility.cs" />
+    <Compile Include="ESB\Entity\Assignation\CheckSet.cs" />
+    <Compile Include="ESB\Entity\Assignation\ChooseCall.cs" />
+    <Compile Include="ESB\Entity\Assignation\DoctorLoginDept.cs" />
+    <Compile Include="ESB\Entity\Assignation\DoctorPause.cs" />
+    <Compile Include="ESB\Entity\Assignation\DoctorState.cs" />
+    <Compile Include="ESB\Entity\Assignation\ExamCallAgain.cs" />
+    <Compile Include="ESB\Entity\Assignation\ExamCallNext.cs" />
+    <Compile Include="ESB\Entity\Assignation\ExamCheckedPatientList.cs" />
+    <Compile Include="ESB\Entity\Assignation\ExamLogin.cs" />
+    <Compile Include="ESB\Entity\Assignation\ExamLoginDept.cs" />
+    <Compile Include="ESB\Entity\Assignation\ExamTake.cs" />
+    <Compile Include="ESB\Entity\Assignation\GetVar.cs" />
+    <Compile Include="ESB\Entity\Assignation\PatientCanCheckQuery.cs" />
+    <Compile Include="ESB\Entity\Assignation\PatientCheck.cs" />
+    <Compile Include="ESB\Entity\Assignation\PatientCheckedQuery.cs" />
+    <Compile Include="ESB\Entity\Assignation\PatientReferralCheck.cs" />
+    <Compile Include="ESB\Entity\Assignation\PatientUniCheck.cs" />
+    <Compile Include="ESB\Entity\Assignation\QueueAdjust.cs" />
+    <Compile Include="ESB\Entity\Assignation\RescueBug.cs" />
+    <Compile Include="ESB\Entity\Assignation\RoomLogin.cs" />
+    <Compile Include="ESB\Entity\Assignation\RoomLogout.cs" />
+    <Compile Include="ESB\Entity\Base\Base.cs" />
+    <Compile Include="ESB\Entity\Basic\Depts.cs" />
+    <Compile Include="ESB\Entity\Basic\DoctorAuthorizeDept.cs" />
+    <Compile Include="ESB\Entity\Basic\Doctors.cs" />
+    <Compile Include="ESB\Entity\Basic\Drugs.cs" />
+    <Compile Include="ESB\Entity\Basic\MedicalRecordReportPrint.cs" />
+    <Compile Include="ESB\Entity\Basic\Medicals.cs" />
+    <Compile Include="ESB\Entity\ExaminationReport\ExamReportDiagnosisQuery.cs" />
+    <Compile Include="ESB\Entity\ExaminationReport\ExamReportExamQuery.cs" />
+    <Compile Include="ESB\Entity\ExaminationReport\ExamReportHomepageQuery.cs" />
+    <Compile Include="ESB\Entity\ExaminationReport\ExamReportInspectQuery.cs" />
+    <Compile Include="ESB\Entity\ExaminationReport\ExamReportQuery.cs" />
+    <Compile Include="ESB\Entity\ExaminationReport\ExamReportTechQuery.cs" />
+    <Compile Include="ESB\Entity\Examination\ExamResultQuery.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalApplyQuery.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalRegistration.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalBill.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalDeposit.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalDepositConfirm.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalDepositQuery.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalFeesQuery.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalPreBill.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalBedQuery.cs" />
+    <Compile Include="ESB\Entity\InHospital\InHospitalRegisterQuery.cs" />
+    <Compile Include="ESB\Entity\Inspection\InspectionResultQuery.cs" />
+    <Compile Include="ESB\Entity\Invoice\InvoiceCurrNoMod.cs" />
+    <Compile Include="ESB\Entity\Invoice\InvoiceCurrNoQuery.cs" />
+    <Compile Include="ESB\Entity\Invoice\InvoiceEnabled.cs" />
+    <Compile Include="ESB\Entity\Invoice\InvoiceQuery.cs" />
+    <Compile Include="ESB\Entity\Medical\TreatmentInfoQuery.cs" />
+    <Compile Include="ESB\Entity\Operation\OperationInfo.cs" />
+    <Compile Include="ESB\Entity\OutPatient\OutPatientBillRecords.cs" />
+    <Compile Include="ESB\Entity\OutPatient\OutPatientChargeDetails.cs" />
+    <Compile Include="ESB\Entity\OutPatient\OutPatientChargePay.cs" />
+    <Compile Include="ESB\Entity\Patient\PatientInformation.cs" />
+    <Compile Include="ESB\Entity\Patient\PatientInformationAdd.cs" />
+    <Compile Include="ESB\Entity\Patient\AddOrDeleteDetailFee.cs" />
+    <Compile Include="ESB\Entity\Patient\PatientInformationDel.cs" />
+    <Compile Include="ESB\Entity\Patient\PatientInformationMod.cs" />
+    <Compile Include="ESB\Entity\Push\PushExamResult.cs" />
+    <Compile Include="ESB\Entity\Push\PushInspectionResult.cs" />
+    <Compile Include="ESB\Entity\Push\PushReserve.cs" />
+    <Compile Include="ESB\Entity\Push\PushVisitComplete.cs" />
+    <Compile Include="ESB\Entity\Refund\Refund.cs" />
+    <Compile Include="ESB\Entity\Reg\NumberSources.cs" />
+    <Compile Include="ESB\Entity\Reg\QueueQuery.cs" />
+    <Compile Include="ESB\Entity\Reg\RegCancel.cs" />
+    <Compile Include="ESB\Entity\Reg\Register.cs" />
+    <Compile Include="ESB\Entity\Reg\RegLockNo.cs" />
+    <Compile Include="ESB\Entity\Reg\RegPatientQuery.cs" />
+    <Compile Include="ESB\Entity\Reg\RegPay.cs" />
+    <Compile Include="ESB\Entity\Reg\RegPrePay.cs" />
+    <Compile Include="ESB\Entity\Reg\RegQuery.cs" />
+    <Compile Include="ESB\Entity\Reg\RegUnLockNo.cs" />
+    <Compile Include="ESB\Entity\Reg\Schedulings.cs" />
+    <Compile Include="ESB\Entity\Res\ResAddresult.cs" />
+    <Compile Include="ESB\Entity\Res\ResCancel.cs" />
+    <Compile Include="ESB\Entity\Res\Reserve.cs" />
+    <Compile Include="ESB\Entity\Res\ReserveCancel.cs" />
+    <Compile Include="ESB\Entity\Res\ResPay.cs" />
+    <Compile Include="ESB\Entity\Res\ResQuery.cs" />
+    <Compile Include="ESB\Entity\Res\ResTake.cs" />
+    <Compile Include="ESB\Entity\RollingAcc\RollAcc.cs" />
+    <Compile Include="ESB\ESBClient.cs" />
+    <Compile Include="ESB\ESBEntitySerialize.cs" />
+    <Compile Include="ESB\ESBProviderFromHis.cs" />
+    <Compile Include="ESB\ESBProvider\Chengdu\HisProviderH00037.cs" />
+    <Compile Include="ESB\ESBProvider\Guangan\HisProviderH00040.cs" />
+    <Compile Include="ESB\ESBProvider\Hangzhou\HisProviderH00039.cs" />
+    <Compile Include="ESB\ESBProvider\Jiaxing\HisProviderH00020.cs" />
+    <Compile Include="ESB\ESBProvider\Jiaxing\HisProviderH00021.cs" />
+    <Compile Include="ESB\ESBProvider\Jiaxing\HisProviderH00022.cs" />
+    <Compile Include="ESB\ESBProvider\Jiaxing\HisProviderH00041.cs" />
+    <Compile Include="ESB\ESBProvider\Jiaxing\HisProviderH00036.cs" />
+    <Compile Include="ESB\ESBProvider\Lanxi\HisProviderH00030.cs" />
+    <Compile Include="ESB\ESBProvider\Lanxi\HisProviderH00031.cs" />
+    <Compile Include="ESB\ESBProvider\Lanxi\HisProviderH00032.cs" />
+    <Compile Include="ESB\ESBProvider\Lanxi\HisProviderH00033.cs" />
+    <Compile Include="ESB\ESBProvider\Jiaxing\HisProviderH00034.cs" />
+    <Compile Include="ESB\ESBProvider\Jiaxing\HisProviderH00035.cs" />
+    <Compile Include="ESB\ESBProvider\HisProviderH00100.cs" />
+    <Compile Include="ESB\ESBProvider\Nantong\HisProviderH00001.cs" />
+    <Compile Include="ESB\ESBProvider\Nantong\HisProviderH00002.cs" />
+    <Compile Include="ESB\ESBProvider\Nantong\HisProviderH00003.cs" />
+    <Compile Include="ESB\ESBProvider\Nantong\HisProviderH00004.cs" />
+    <Compile Include="ESB\ESBProvider\Nantong\HisProviderH00005.cs" />
+    <Compile Include="ESB\ESBProvider\Nantong\HisProviderH00006.cs" />
+    <Compile Include="ESB\ESBProvider\Nantong\HisProviderH00007.cs" />
+    <Compile Include="ESB\ESBToolBox.cs" />
+    <Compile Include="ESB\IBusiness.cs" />
+    <Compile Include="MIP\BasicModel.cs" />
+    <Compile Include="MIP\Models\V1\AckModel.cs" />
+    <Compile Include="MIP\Models\V1\BaseModel.cs" />
+    <Compile Include="MIP\Models\V1\BillModel.cs" />
+    <Compile Include="MIP\Models\V1\DetailModel.cs" />
+    <Compile Include="MIP\Models\V1\IndexModel.cs" />
+    <Compile Include="MIP\Models\V1\PreBillModel.cs" />
+    <Compile Include="SMP\Entity\SMSBase.cs" />
+    <Compile Include="SMP\Entity\SMSQuery.cs" />
+    <Compile Include="SMP\Entity\SMSReport.cs" />
+    <Compile Include="SMP\Entity\SMSSend.cs" />
+    <Compile Include="SMP\SMPClient.cs" />
+    <Compile Include="TCP\Entity\CheckMode.cs" />
+    <Compile Include="TCP\ITCPCommon.cs" />
+    <Compile Include="TCP\TCPProvider\Hangzhou\TCPCommonH00039.cs" />
+    <Compile Include="ToolBoxWithApp.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UPP\Entity\Agree\UPPAgreeQuery.cs" />
+    <Compile Include="UPP\Entity\Agree\UPPAgreeSign.cs" />
+    <Compile Include="UPP\Entity\Agree\UPPAgreeUnsign.cs" />
+    <Compile Include="UPP\Entity\Face\UPPFacePay.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfALAgreeNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfALNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfCBOCNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfDPNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfEPNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfGSNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfHHAPNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfTXNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfUPNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfUPQRCNotify.cs" />
+    <Compile Include="UPP\Entity\Receive\UPPOfUPYDNotify.cs" />
+    <Compile Include="UPP\Entity\UPPBase.cs" />
+    <Compile Include="UPP\Entity\UPPCancel.cs" />
+    <Compile Include="UPP\Entity\UPPCharge.cs" />
+    <Compile Include="UPP\Entity\UPPData.cs" />
+    <Compile Include="UPP\Entity\UPPDetails.cs" />
+    <Compile Include="UPP\Entity\Face\UPPFaceCreate.cs" />
+    <Compile Include="UPP\Entity\Face\UPPFaceDelete.cs" />
+    <Compile Include="UPP\Entity\Face\UPPFaceInitialize.cs" />
+    <Compile Include="UPP\Entity\Face\UPPFaceQuery.cs" />
+    <Compile Include="UPP\Entity\UPPForm.cs" />
+    <Compile Include="UPP\Entity\UPPHisQuery.cs" />
+    <Compile Include="UPP\Entity\UPPMchAccQuery.cs" />
+    <Compile Include="UPP\Entity\UPPOffCardRefund.cs" />
+    <Compile Include="UPP\Entity\UPPOrder.cs" />
+    <Compile Include="UPP\Entity\UPPQuery.cs" />
+    <Compile Include="UPP\Entity\UPPRefund.cs" />
+    <Compile Include="UPP\Entity\UPPRefundQuery.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPDeposit.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPLoss.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPModify.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPOff.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPPay.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPQueryAcc.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPRefundAcc.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPRegister.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPRevoke.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPUnLoss.cs" />
+    <Compile Include="UPP\Entity\VAcc\UPPWithdraw.cs" />
+    <Compile Include="UPP\UPPClient.cs" />
+    <Compile Include="UPP\UPPConfig.cs" />
+    <Compile Include="UPP\UPPException.cs" />
+    <Compile Include="UPP\Entity\Face\UPPFaceUserQuery.cs" />
+    <Compile Include="UPP\UPPNotify.cs" />
+    <Compile Include="UPP\UPPToolBox.cs" />
+    <Compile Include="XAI\Entity\XAIFAdd.cs" />
+    <Compile Include="XAI\Entity\XAIFDel.cs" />
+    <Compile Include="XAI\Entity\XAIFGet.cs" />
+    <Compile Include="XAI\Entity\XAIFind.cs" />
+    <Compile Include="XAI\Entity\XAIAuth.cs" />
+    <Compile Include="XAI\Entity\XAIBase.cs" />
+    <Compile Include="XAI\Entity\XAIFMod.cs" />
+    <Compile Include="XAI\XAIConfig.cs" />
+    <Compile Include="XAI\XAIToolBox.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BCL.DataAccess\BCL.DataAccess.csproj">
+      <Project>{CEC84E11-1D4E-4F2E-9BFC-8AB24FE326A0}</Project>
+      <Name>BCL.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BCL.ToolLib\BCL.ToolLib.csproj">
+      <Project>{4c44c85d-be18-41f0-8a76-2c9ee95ded1e}</Project>
+      <Name>BCL.ToolLib</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
