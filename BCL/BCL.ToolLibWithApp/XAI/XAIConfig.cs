@@ -27,7 +27,7 @@ namespace BCL.ToolLibWithApp.XAI
             return dbContext.DbApp("SELECT * " +
                                          "FROM FT_App " +
                                         "WHERE AppCode = @AppCode " +
-                                          "AND Active = 0 ",
+                                          "AND IsDelete = 0 ",
                                        new { AppCode = appCode }).FirstOrDefault();
         }
         /// <summary>
@@ -52,11 +52,11 @@ namespace BCL.ToolLibWithApp.XAI
         {
             lock (_DbAppCache)
             {
-                using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.UPPDb)._DataAccess)
+                using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
                 {
-                    dbContext.Database.Connection.Query<Db_FApp>("SELECT * FROM FT_App WHERE Active = 0").ToList().ForEach(o =>
+                    dbContext.Database.Connection.Query<Db_FApp>("SELECT * FROM FT_App WHERE IsDelete = 0").ToList().ForEach(o =>
                     {
-                        _DbAppCache.AddOrUpdate(o.AppCode, o, (key, value) => value);
+                        _DbAppCache.AddOrUpdate(o.AppCode.ToString(), o, (key, value) => value);
                     });
                 }
             }
@@ -108,9 +108,9 @@ namespace BCL.ToolLibWithApp.XAI
                     var dbAuthLog = dbContext.Set<Db_AuthLog>().Where(w => w.Id == _RowId).ToList().FirstOrDefault();
                     if (dbAuthLog == null)
                         throw new Exception("The authlog that needs to be modified does not exist! id=" + _RowId);
-                    dbAuthLog.PaperworkImageId = _Images.Where(w => w.Kind == "IDCARD").First().ImageId;
+                    dbAuthLog.PaperworkImageId = _Images.Where(w => w.Kind == "IDCARD").FirstOrDefault()?.ImageId;
                     dbAuthLog.PageworkImageType = "BASE64";
-                    dbAuthLog.FaceImageId = _Images.Where(w => w.Kind == "LIVE").First().ImageId;
+                    dbAuthLog.FaceImageId = _Images.Where(w => w.Kind == "LIVE").FirstOrDefault()?.ImageId;
                     dbAuthLog.FaceImageType = "BASE64";
                     dbAuthLog.MessageOut = _Res.ToJson();
                     dbAuthLog.ReturnCode = _Res.Code.ToInt();

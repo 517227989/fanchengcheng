@@ -32,12 +32,32 @@ namespace XAI.Provider.Modules
 
                     var resAddGroup = _Business.AddGroup(biz);
 
-                    return ResCode.交易成功.XAIAckOfBiz(new XAIResAddGroup()).ToJson();
+                    return ResCode.交易成功.XAIAckOfBiz(new XAIResAddGroup());
                 }
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfBiz(ex.Message).ToJson();
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
+                }
+            };
+
+            Post["/DeleteGroup"] = o =>
+            {
+                try
+                {
+                    var biz = _Req.Args.ToEntity<XAIReqDeleteGroup>();
+                    #region 参数判断
+                    biz.GroupId.IsNullOrEmptyOfVar("GroupId");
+                    #endregion
+
+                    var resAddGroup = _Business.DeleteGroup(biz);
+
+                    return ResCode.交易成功.XAIAckOfBiz(new XAIResDeleteGroup());
+                }
+                catch (Exception ex)
+                {
+                    LogModule.Info(ex);
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
         }

@@ -20,6 +20,7 @@ namespace BCL.ToolLibWithApp.XAI.Entity
     }
     public class XAIResFAdd : XAIBizResBase
     {
+        public string AuthId { get; set; }
         public string UserId { get; set; }
         public string FaceToken { get; set; }
         public string LocationLeft { get; set; }

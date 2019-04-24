@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace BCL.ToolLibWithApp.XAI.Entity
 {
-    public class XAIReqFind
-    {
-        public string Image { get; set; }
-        public string GroupId { get; set; }
-    }
-    public class XAIResFind : XAIBizResBase
+    public class XAIReqIAdd
     {
         public string UserId { get; set; }
-        /// <summary>
-        /// 用户索引(对应HIS用户主索引)
-        /// </summary>
         public List<UserIndexInfo> Indexs { get; set; }
+    }
+    public class XAIResIAdd : XAIBizResBase
+    {
+    }
+    public class UserIndexInfo
+    {
+        public string Index { get; set; }
+        public string IndexType { get; set; }
     }
 }

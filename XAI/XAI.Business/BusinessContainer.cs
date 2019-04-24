@@ -34,7 +34,7 @@ namespace XAI.Business
             try
             {
                 var builder = new ContainerBuilder();
-                builder.RegisterType(Type.GetType("UPP.Business.Business" + "BIDU"))
+                builder.RegisterType(Type.GetType("XAI.Business.Business" + "BIDU"))
                        .WithParameter("_Req", req)
                        .As<IBusiness>();
                 _Business = builder.Build()

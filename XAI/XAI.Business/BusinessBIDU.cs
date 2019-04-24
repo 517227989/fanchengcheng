@@ -38,7 +38,7 @@ namespace XAI.Business
                         var dbApp = dbContext.DbApp(_Req.AppCode);
                         if (dbApp != null)
                         {
-                            var client = new Baidu.Aip.Face.Face(dbApp.AppKey.ToString(), dbApp.AppSecret.ToString())
+                            client = new Baidu.Aip.Face.Face(dbApp.AppKey.ToString(), dbApp.AppSecret.ToString())
                             {
                                 Timeout = 60000  // 修改超时时间
                             };
@@ -66,26 +66,23 @@ namespace XAI.Business
                 {
                     image = f.Image,
                     image_type = "BASE64",
-                    face_type = f.Kind,
-                    quality_control = "NONE",
-                    liveness_control = f.Kind == "LIVE" ? "NORMAL" : "NONE"
+                    face_type = f.Kind
                 };
                 image_list.Add(image);
             });
             var res = client.Match(JArray.Parse(image_list.ToJson())).ToJson().ToEntity<BIDUResponse>();
             if (res.error_code != 0)
                 throw new XAIException(3100, res.error_msg);
-            if (res.score < 80)
+            if (res.result.score < 80)
                 throw new XAIException(3100, "图片对比阈值过低，对比失败！");
             return new XAIResAuth()
             {
                 AuthId = res.log_id,
-                FaceTokenList = res.face_list.Select(s => s.face_token).ToList(),
+                FaceTokenList = res.result.face_list.Select(s => s.face_token).ToList(),
                 PaperWorkNo = reqData.UserInfo.PaperWorkNo,
                 PhoneNo = reqData.UserInfo.PhoneNo,
                 UserId = reqData.UserId
             };
-            //Todo 业务逻辑
         }
         /// <summary>
         /// 刷脸识别
@@ -94,14 +91,15 @@ namespace XAI.Business
         /// <returns></returns>
         public XAIResFind Find(XAIReqFind reqData)
         {
+
             var res = client.Search(reqData.Image, "BASE64", reqData.GroupId).ToJson().ToEntity<BIDUResponse>();
             if (res.error_code != 0)
                 throw new XAIException(3100, res.error_msg);
-            if (res.user_list.Count() == 0)
+            if (res.result.user_list.Count() == 0)
                 throw new XAIException(3100, "未识别出有效用户");
             return new XAIResFind()
             {
-                UserId = res.user_list.OrderByDescending(w => w.score).First().user_id
+                UserId = res.result.user_list.OrderByDescending(w => w.score).First().user_id
             };
         }
         /// <summary>
@@ -116,12 +114,13 @@ namespace XAI.Business
                 throw new XAIException(3100, res.error_msg);
             return new XAIResFAdd()
             {
-                FaceToken = res.face_token,
-                LocationLeft = res.location.left.ToString(),
-                LocationTop = res.location.top.ToString(),
-                LocationWidth = res.location.width.ToString(),
-                LocationHeight = res.location.height.ToString(),
-                LocationRotaion = res.location.rotation.ToString()
+                AuthId = res.log_id,
+                FaceToken = res.result.face_token,
+                LocationLeft = res.result.location.left.ToString(),
+                LocationTop = res.result.location.top.ToString(),
+                LocationWidth = res.result.location.width.ToString(),
+                LocationHeight = res.result.location.height.ToString(),
+                LocationRotaion = res.result.location.rotation.ToString()
             };
         }
         /// <summary>
@@ -131,18 +130,26 @@ namespace XAI.Business
         /// <returns></returns>
         public XAIResFMod FMod(XAIReqFMod reqData)
         {
-            //Todo 业务逻辑
-            throw new NotImplementedException();
+            var res = client.UserUpdate(reqData.Image, "BASE64", reqData.GroupId, reqData.UserId).ToJson().ToEntity<BIDUResponse>();
+            if (res.error_code != 0)
+                throw new XAIException(3100, res.error_msg);
+            return new XAIResFMod()
+            {
+            };
         }
         /// <summary>
-        /// 刷脸删除
+        /// 删除用户
         /// </summary>
         /// <param name="reqData"></param>
         /// <returns></returns>
         public XAIResFDel FDel(XAIReqFDel reqData)
         {
-            //Todo 业务逻辑
-            throw new NotImplementedException();
+            var res = client.UserDelete(reqData.GroupId, reqData.UserId).ToJson().ToEntity<BIDUResponse>();
+            if (res.error_code != 0)
+                throw new XAIException(3100, res.error_msg);
+            return new XAIResFDel()
+            {
+            };
         }
         /// <summary>
         /// 用户查询
@@ -151,8 +158,13 @@ namespace XAI.Business
         /// <returns></returns>
         public XAIResFGet FGet(XAIReqFGet reqData)
         {
-            //Todo 业务逻辑
-            throw new NotImplementedException();
+            var res = client.UserGet(reqData.UserId, reqData.GroupId).ToJson().ToEntity<BIDUResponse>();
+            if (res.error_code != 0)
+                throw new XAIException(3100, res.error_msg);
+            return new XAIResFGet()
+            {
+                UserInfo = res.result.user_list.FirstOrDefault()?.user_info.ToEntity<BCL.ToolLibWithApp.XAI.Entity.UserInfo>()
+            };
         }
         /// <summary>
         /// 新增用户组
@@ -167,6 +179,50 @@ namespace XAI.Business
             return new XAIResAddGroup()
             {
             };
+        }
+        /// <summary>
+        /// 删除用户组
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <returns></returns>
+        public XAIResDeleteGroup DeleteGroup(XAIReqDeleteGroup reqData)
+        {
+            var res = client.GroupDelete(reqData.GroupId).ToJson().ToEntity<BIDUResponse>();
+            if (res.error_code != 0)
+                throw new XAIException(3100, res.error_msg);
+            return new XAIResDeleteGroup()
+            {
+            };
+        }
+        /// <summary>
+        /// 获取用户列表
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <returns></returns>
+        public XAIResGetUserList GetUserList(XAIReqGetUserList reqData)
+        {
+            var res = client.GroupGetusers(reqData.GroupId).ToJson().ToEntity<BIDUResponse>();
+            if (res.error_code != 0)
+                throw new XAIException(3100, res.error_msg);
+            return new XAIResGetUserList()
+            {
+                UserIdList = res.result.user_id_list
+            };
+        }
+        /// <summary>
+        /// 删除人脸
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <returns></returns>
+        public XAIResDeleteFace DeleteFace(XAIReqDeleteFace reqData)
+        {
+            var res = client.FaceDelete(reqData.GroupId, reqData.UserId, reqData.FaceToken).ToJson().ToEntity<BIDUResponse>();
+            if (res.error_code != 0)
+                throw new XAIException(3100, res.error_msg);
+            return new XAIResDeleteFace()
+            {
+            };
+
         }
     }
 }

@@ -45,6 +45,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Modules\XAIAdminModule.cs" />
     <Compile Include="Modules\XAIModule.cs" />
     <Compile Include="XAIBootstrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -32,12 +32,9 @@ namespace XAI.Business.Model
     {
         public int error_code { get; set; }
         public string error_msg { get; set; }
-        public float score { get; set; }
-        public List<FaceInfo> face_list { get; set; }
-        public string face_token { get; set; }
-        public List<UserInfo> user_list { get; set; }
         public string log_id { get; set; }
-        public LocationInfo location { get; set; }
+        public string timestamp { get; set; }
+        public BIDUResult result { get; set; }
     }
     public class FaceInfo
     {
@@ -57,5 +54,15 @@ namespace XAI.Business.Model
         public double width { get; set; }
         public double height { get; set; }
         public long rotation { get; set; }
+    }
+    public class BIDUResult
+    {
+
+        public float score { get; set; }
+        public List<FaceInfo> face_list { get; set; }
+        public string face_token { get; set; }
+        public List<UserInfo> user_list { get; set; }
+        public LocationInfo location { get; set; }
+        public List<string> user_id_list { get; set; }
     }
 }

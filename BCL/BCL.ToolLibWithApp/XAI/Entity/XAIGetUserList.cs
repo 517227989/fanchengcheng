@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace BCL.ToolLibWithApp.XAI.Entity
 {
-    public class XAIReqFGet
+    public class XAIReqGetUserList
     {
-        public string UserId { get; set; }
         public string GroupId { get; set; }
     }
-    public class XAIResFGet:XAIBizResBase
+    public class XAIResGetUserList : XAIBizResBase
     {
-        public List<ImageInfo> Images { get; set; }
-        public UserInfo UserInfo { get; set; }
+        public List<string> UserIdList { get; set; }
     }
+
 }

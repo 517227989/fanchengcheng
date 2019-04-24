@@ -201,6 +201,7 @@
     <Compile Include="DbEntity\XAI\Db_Face.cs" />
     <Compile Include="DbEntity\XAI\Db_IdentLog.cs" />
     <Compile Include="DbEntity\XAI\Db_Image.cs" />
+    <Compile Include="DbEntity\XAI\Db_UserIndex.cs" />
     <Compile Include="DbEntity\XAI\Db_Patient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

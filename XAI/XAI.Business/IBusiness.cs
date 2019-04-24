@@ -54,5 +54,23 @@ namespace XAI.Business
         /// <param name="reqData"></param>
         /// <returns></returns>
         XAIResAddGroup AddGroup(XAIReqAddGroup reqData);
+        /// <summary>
+        /// 删除用户组
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <returns></returns>
+        XAIResDeleteGroup DeleteGroup(XAIReqDeleteGroup reqData); 
+        /// <summary>
+        /// 获取用户列表
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <returns></returns>
+        XAIResGetUserList GetUserList(XAIReqGetUserList reqData);
+        /// <summary>
+        /// 删除用户
+        /// </summary>
+        /// <param name="reqData"></param>
+        /// <returns></returns>
+        XAIResDeleteFace DeleteFace(XAIReqDeleteFace reqData);
     }
 }

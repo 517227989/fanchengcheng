@@ -65,9 +65,11 @@ namespace XAI.Provider.Modules
                 {
                     _Req.AddAuthLog();
                     var biz = _Req.Args.ToEntity<XAIReqAuth>();
+                    var groupId = "Group_" + _App.AppCode + "_01";
+                    biz.UserId = groupId + "_" + biz.UserInfo.PaperWorkNo;
                     #region 参数判断
-                    if (biz.Images.Count() != 2)
-                        throw new ArgumentNullException("Images对比图片必须为两张！");
+                    if (biz.Images.Count() != 2 || biz.Images.Where(w => w.Kind == "LIVE").Count() == 0 || biz.Images.Where(w => w.Kind == "IDCARD").Count() == 0)
+                        throw new ArgumentNullException("Images对比图片必须为两张，且一张为生活照，一张为证件照");
                     biz.Images.ForEach(f =>
                     {
                         f.Image.IsNullOrEmptyOfVar("Image");
@@ -82,13 +84,12 @@ namespace XAI.Provider.Modules
                     {
                         var patient = dbContext.Set<Db_Patient>().Where(w => w.PaperworkNo == biz.UserInfo.PaperWorkNo && w.IsDetele == 0).AsNoTracking().FirstOrDefault();
                         if (patient != null)
-                            return ResCode.业务错误.XAIAckOfBiz("该用户已认证，请勿重复认证!").ToJson();
+                            return ResCode.业务错误.XAIAckOfErr("该用户已认证，请勿重复认证!");
                         var authlog = dbContext.Set<Db_AuthLog>().Where(w => w.Id == _Req.RowId).FirstOrDefault();
                         if (authlog == null)
-                            return ResCode.业务错误.XAIAckOfBiz("not found authlog,id=" + _Req.RowId).ToJson();
+                            return ResCode.业务错误.XAIAckOfErr("not found authlog,id=" + _Req.RowId);
                         //人脸对比
                         var resAuth = _Business.Auth(biz);
-                        biz.UserId = Snowflake.Instance().GetId().ToString();
                         //插一条人员表
                         var dbPatient = new Db_Patient()
                         {
@@ -106,54 +107,65 @@ namespace XAI.Provider.Modules
                             AddDate = DateTime.Now
                         };
                         dbContext.Entry(dbPatient).State = EntityState.Added;
-                        //循环图片插入图片和人脸表
-                        biz.Images.ForEach(f =>
+                        try
                         {
-                            var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = f.Image };
-                            f.ImageId = dbImage.ImageId;
-                            dbContext.Entry(dbImage).State = EntityState.Added;
-                            var reqFAdd = new XAIReqFAdd()
+                            //循环图片插入图片和人脸表
+                            biz.Images.ForEach(f =>
                             {
-                                UserId = biz.UserId,
-                                UserInfo = biz.UserInfo,
-                                Image = dbImage.ImageId,
-                                GroupId = "Group_" + _App.AppCode + "_01"
-                            };
-                            //人脸新增
-                            var resFAdd = _Business.FAdd(reqFAdd);
-                            var dbface = new Db_Face()
-                            {
-                                AuthId = resAuth.AuthId,
-                                AppCode = _App.AppCode,
-                                ImageId = dbImage.ImageId,
-                                //暂写死BASE64
-                                ImageType = "BASE64",
-                                FaceType = f.Kind,
-                                FaceToken = resFAdd.FaceToken,
-                                GroupId = "Group_" + _App.AppCode + "_01",
-                                UserId = biz.UserId,
-                                UserInfo = biz.UserInfo.ToJson(),
-                                LocationLeft = resFAdd.LocationLeft,
-                                LocationTop = resFAdd.LocationTop,
-                                LocationHeight = resFAdd.LocationHeight,
-                                LocationWidth = resFAdd.LocationWidth,
-                                LocationRotaion = resFAdd.LocationRotaion,
-                                IsDelete = 0,
-                                AddDate = DateTime.Now,
-                            };
-                            dbContext.Entry(dbface).State = EntityState.Added;
-                        });
-                        var res = ResCode.交易成功.XAIAckOfBiz(resAuth).ToJson();
-                        //补充authlog
-                        res.ModAuthLog(_Req.RowId, biz.Images, resAuth.AuthId);
-                        dbContext.SaveChanges();
-                        return res;
+                                var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = f.Image };
+                                f.ImageId = dbImage.ImageId;
+                                dbContext.Entry(dbImage).State = EntityState.Added;
+                                var reqFAdd = new XAIReqFAdd()
+                                {
+                                    UserId = biz.UserId,
+                                    UserInfo = biz.UserInfo,
+                                    Image = f.Image,
+                                    GroupId = groupId
+                                };
+                                //人脸新增
+                                var resFAdd = _Business.FAdd(reqFAdd);
+                                var dbface = new Db_Face()
+                                {
+                                    AuthId = resFAdd.AuthId,
+                                    AppCode = _App.AppCode,
+                                    ImageId = dbImage.ImageId,
+                                    //暂写死BASE64
+                                    ImageType = "BASE64",
+                                    FaceType = f.Kind,
+                                    FaceToken = resFAdd.FaceToken,
+                                    GroupId = groupId,
+                                    UserId = biz.UserId,
+                                    UserInfo = biz.UserInfo.ToJson(),
+                                    LocationLeft = resFAdd.LocationLeft,
+                                    LocationTop = resFAdd.LocationTop,
+                                    LocationHeight = resFAdd.LocationHeight,
+                                    LocationWidth = resFAdd.LocationWidth,
+                                    LocationRotaion = resFAdd.LocationRotaion,
+                                    IsDelete = 0,
+                                    AddDate = DateTime.Now,
+                                };
+                                dbContext.Entry(dbface).State = EntityState.Added;
+                            });
+                            var res = ResCode.交易成功.XAIAckOfBiz(resAuth);
+                            //补充authlog
+                            res.ModAuthLog(_Req.RowId, biz.Images, resAuth.AuthId);
+                            dbContext.SaveChanges();
+                            return res;
+                        }
+                        catch (Exception ex)
+                        {
+
+                            var reqFDel = new XAIReqFDel() { GroupId = groupId, UserId = biz.UserId };
+                            //删除用户
+                            var resFAdd = _Business.FDel(reqFDel);
+                            throw ex;
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfBiz(ex.Message).ToJson();
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
             Post["/Find"] = o =>
@@ -165,18 +177,20 @@ namespace XAI.Provider.Modules
                     #region 参数判断
                     biz.Image.IsNullOrEmptyOfVar("Image");
                     #endregion
-
+                    var groupId = "Group_" + _App.AppCode + "_01";
                     using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
                     {
                         var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = biz.Image };
                         dbContext.Entry(dbImage).State = EntityState.Added;
                         dbContext.SaveChanges();
+                        biz.GroupId = groupId;
                         var resFind = _Business.Find(biz);
                         var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == resFind.UserId && w.IsDetele == 0).AsNoTracking().FirstOrDefault();
                         if (dbPatient == null)
-                            return ResCode.业务错误.XAIAckOfBiz("未查找到用户：" + resFind.UserId).ToJson();
-                        resFind.EmpId = dbPatient.PaperworkNo;
-                        var res = ResCode.交易成功.XAIAckOfBiz(resFind).ToJson();
+                            return ResCode.业务错误.XAIAckOfErr("未查找到用户：" + resFind.UserId);
+                        var dbUserIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == resFind.UserId && w.IsDelete == 0).ToList();
+                        resFind.Indexs = dbUserIndexList.Select(s => new UserIndexInfo { Index = s.Index, IndexType = s.IndexType }).ToList();
+                        var res = ResCode.交易成功.XAIAckOfBiz(resFind);
                         //补充identlog
                         res.ModFindLog(_Req.RowId, dbImage);
                         return res;
@@ -185,7 +199,7 @@ namespace XAI.Provider.Modules
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfBiz(ex.Message).ToJson();
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
             Post["/FAdd"] = o =>
@@ -194,20 +208,116 @@ namespace XAI.Provider.Modules
                 {
                     var biz = _Req.Args.ToEntity<XAIReqFAdd>();
                     #region 参数判断
-                    biz.UserId.IsNullOrEmptyOfVar("UserId");
                     biz.Image.IsNullOrEmptyOfVar("Image");
                     if (biz.UserInfo == null)
                         throw new ArgumentNullException("UserInfo用户信息不可为空！");
                     biz.UserInfo.PhoneNo.IsNullOrEmptyOfVar("UserInfo.PhoneNo");
                     biz.UserInfo.PaperWorkNo.IsNullOrEmptyOfVar("UserInfo.PaperWorkNo");
                     #endregion
-                    //Todo 业务逻辑
-                    return ResCode.交易成功.XAIAckOfBiz(new XAIResFAdd() { UserId = biz.UserId }).ToJson();
+                    biz.GroupId = "Group_" + _App.AppCode + "_01";
+                    biz.UserId = biz.GroupId + "_" + biz.UserInfo.PaperWorkNo;
+                    //插入成功标志
+                    var FaceToken = "";
+                    using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
+                    {
+                        var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == biz.UserId && w.IsDetele == 0).AsNoTracking().FirstOrDefault();
+                        var IsDeleteUser = (dbPatient != null && dbPatient.IsDetele == 0) ? false : true;
+                        var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = biz.Image };
+                        dbContext.Entry(dbImage).State = EntityState.Added;
+                        try
+                        {
+                            var resFAdd = _Business.FAdd(biz);
+                            FaceToken = resFAdd.FaceToken;
+                            if (dbPatient == null)
+                            {
+                                //插一条人员表
+                                var newDbPatient = new Db_Patient()
+                                {
+                                    AuthId = resFAdd.AuthId,
+                                    UserId = biz.UserId,
+                                    Name = biz.UserInfo.Name,
+                                    PhoneNo = biz.UserInfo.PhoneNo,
+                                    Sex = biz.UserInfo.Sex,
+                                    Natrue = biz.UserInfo.Nature,
+                                    Adress = biz.UserInfo.Address,
+                                    Birthday = biz.UserInfo.Birthday,
+                                    PaperworkType = "IDCARD",
+                                    PaperworkNo = biz.UserInfo.PaperWorkNo,
+                                    IsDetele = 0,
+                                    AddDate = DateTime.Now
+                                };
+                                dbContext.Entry(newDbPatient).State = EntityState.Added;
+                            }
+                            else if (dbPatient != null && dbPatient.IsDetele != 0)
+                            {
+                                //更新人员表
+                                dbPatient = new Db_Patient()
+                                {
+                                    AuthId = resFAdd.AuthId,
+                                    UserId = biz.UserId,
+                                    Empi = null,
+                                    Name = biz.UserInfo.Name,
+                                    PhoneNo = biz.UserInfo.PhoneNo,
+                                    Sex = biz.UserInfo.Sex,
+                                    Natrue = biz.UserInfo.Nature,
+                                    Adress = biz.UserInfo.Address,
+                                    Birthday = biz.UserInfo.Birthday,
+                                    PaperworkType = "IDCARD",
+                                    PaperworkNo = biz.UserInfo.PaperWorkNo,
+                                    IsDetele = 0,
+                                    AddDate = DateTime.Now
+                                };
+                                dbContext.Entry(dbPatient).State = EntityState.Modified;
+                            }
+                            //插入人脸表
+                            var dbface = new Db_Face()
+                            {
+                                AuthId = resFAdd.AuthId,
+                                AppCode = _App.AppCode,
+                                ImageId = dbImage.ImageId,
+                                ImageType = "BASE64",
+                                FaceType = "LIVE",
+                                FaceToken = resFAdd.FaceToken,
+                                GroupId = biz.GroupId,
+                                UserId = biz.UserId,
+                                UserInfo = biz.UserInfo.ToJson(),
+                                LocationLeft = resFAdd.LocationLeft,
+                                LocationTop = resFAdd.LocationTop,
+                                LocationHeight = resFAdd.LocationHeight,
+                                LocationWidth = resFAdd.LocationWidth,
+                                LocationRotaion = resFAdd.LocationRotaion,
+                                IsDelete = 0,
+                                AddDate = DateTime.Now,
+                            };
+                            dbContext.Entry(dbface).State = EntityState.Added;
+                            dbContext.SaveChanges();
+                            return ResCode.交易成功.XAIAckOfBiz(new XAIResFAdd() { UserId = biz.UserId });
+                        }
+                        catch (Exception ex)
+                        {
+                            if (IsDeleteUser)
+                            {
+                                var reqFDel = new XAIReqFDel() { GroupId = biz.GroupId, UserId = biz.UserId };
+                                //删除用户
+                                var resFAdd = _Business.FDel(reqFDel);
+                            }
+                            else
+                            {
+                                if (!FaceToken.IsNullOrEmptyOfVar())
+                                {
+                                    var reqDeleteFace = new XAIReqDeleteFace() { GroupId = biz.GroupId, UserId = biz.UserId, FaceToken = FaceToken };
+                                    //删除用户
+                                    var resDeleteFace = _Business.DeleteFace(reqDeleteFace);
+                                }
+                            }
+                            throw ex;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfBiz(ex.Message).ToJson();
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
             Post["/FMod"] = o =>
@@ -222,10 +332,10 @@ namespace XAI.Provider.Modules
                     {
                         var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == biz.UserId && w.IsDetele == 0).FirstOrDefault();
                         if (dbPatient == null)
-                            return ResCode.业务错误.XAIAckOfBiz("未查询到用户：" + biz.UserId).ToJson();
+                            return ResCode.业务错误.XAIAckOfErr("未查询到用户：" + biz.UserId);
                         var dbface = dbContext.Set<Db_Face>().Where(w => w.UserId == biz.UserId && w.FaceType == "LIVE" && w.IsDelete == 0).FirstOrDefault();
                         if (dbface == null)
-                            return ResCode.业务错误.XAIAckOfBiz("未查询到用户的人脸库：" + biz.UserId).ToJson();
+                            return ResCode.业务错误.XAIAckOfErr("未查询到用户的人脸库：" + biz.UserId);
                         biz.GroupId = dbface.GroupId;
                         if (!biz.Image.IsNullOrEmptyOfVar())
                         {
@@ -260,12 +370,12 @@ namespace XAI.Provider.Modules
                         }
                         dbContext.SaveChanges();
                     }
-                    return ResCode.交易成功.XAIAckOfBiz(new XAIResFMod()).ToJson();
+                    return ResCode.交易成功.XAIAckOfBiz(new XAIResFMod());
                 }
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfBiz(ex.Message).ToJson();
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
             Post["/FDel"] = o =>
@@ -276,13 +386,28 @@ namespace XAI.Provider.Modules
                     #region 参数判断
                     biz.UserId.IsNullOrEmptyOfVar("UserId");
                     #endregion
-                    //Todo 业务逻辑
-                    return ResCode.交易成功.XAIAckOfBiz(new XAIResFDel()).ToJson();
+                    using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
+                    {
+                        var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == biz.UserId && w.IsDetele == 0).FirstOrDefault();
+                        if (dbPatient == null)
+                            return ResCode.业务错误.XAIAckOfErr("未查询到用户：" + biz.UserId);
+                        var reqFDel = new XAIReqFDel()
+                        {
+                            GroupId = "Group_" + _App.AppCode + "_01",
+                            UserId = biz.UserId
+                        };
+                        var resFDel = _Business.FDel(reqFDel);
+                        dbPatient.IsDetele = 1;
+                        var dbFaceList = dbContext.Set<Db_Face>().Where(w => w.UserId == biz.UserId).ToList();
+                        dbFaceList.ForEach(f => { f.IsDelete = 1; });
+                        dbContext.SaveChanges();
+                        return ResCode.交易成功.XAIAckOfBiz(new XAIResFDel());
+                    }
                 }
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfBiz(ex.Message).ToJson();
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
             Post["/FGet"] = o =>
@@ -293,13 +418,105 @@ namespace XAI.Provider.Modules
                     #region 参数判断
                     biz.UserId.IsNullOrEmptyOfVar("UserId");
                     #endregion
-                    //Todo 业务逻辑
-                    return ResCode.交易成功.XAIAckOfBiz(new XAIResFGet()).ToJson();
+                    using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
+                    {
+                        var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == biz.UserId && w.IsDetele == 0).FirstOrDefault();
+                        if (dbPatient == null)
+                            return ResCode.业务错误.XAIAckOfErr("未查询到用户：" + biz.UserId);
+                        var dbFaceList = dbContext.Set<Db_Face>().Where(w => w.UserId == biz.UserId && w.IsDelete == 0).FirstOrDefault();
+
+                        return ResCode.交易成功.XAIAckOfBiz(new XAIResFGet());
+                    }
                 }
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfBiz(ex.Message).ToJson();
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
+                }
+            };
+            Post["/IAdd"] = o =>
+            {
+                try
+                {
+                    var biz = _Req.Args.ToEntity<XAIReqIAdd>();
+                    #region 参数判断
+                    biz.UserId.IsNullOrEmptyOfVar("UserId");
+                    if (biz.Indexs == null)
+                        throw new ArgumentNullException("Indexs用户索引信息不可为空！");
+                    biz.Indexs.ForEach(f =>
+                    {
+                        f.Index.IsNullOrEmptyOfVar("Index");
+                        f.IndexType.IsNullOrEmptyOfVar("IndexType");
+                    });
+                    #endregion
+                    using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
+                    {
+                        var dbIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == biz.UserId).ToList();
+                        biz.Indexs.ForEach(f =>
+                        {
+                            var dbIndex = dbIndexList.Where(w => w.Index == f.Index && w.IndexType == f.IndexType).FirstOrDefault();
+                            if (dbIndex != null)
+                            {
+                                if (dbIndex.IsDelete == 0)
+                                    throw new XAIException("用户索引已存在，请勿重复添加：" + f.Index);
+                                dbIndex.IsDelete = 0;
+                            }
+                            else
+                            {
+                                dbIndex = new Db_UserIndex()
+                                {
+                                    UserId = biz.UserId,
+                                    Index = f.Index,
+                                    IndexType = f.IndexType,
+                                    IsDelete = 0,
+                                    AddDate = DateTime.Now,
+                                };
+                                dbContext.Entry(dbIndex).State = EntityState.Added;
+                            }
+                        });
+                        dbContext.SaveChanges();
+                        return ResCode.交易成功.XAIAckOfBiz(new XAIResIAdd());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogModule.Info(ex);
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
+                }
+            };
+            Post["/IDel"] = o =>
+            {
+                try
+                {
+                    var biz = _Req.Args.ToEntity<XAIReqIDel>();
+                    #region 参数判断
+                    biz.UserId.IsNullOrEmptyOfVar("UserId");
+                    if (biz.Indexs == null)
+                        throw new ArgumentNullException("Indexs用户索引信息不可为空！");
+                    biz.Indexs.ForEach(f =>
+                    {
+                        f.Index.IsNullOrEmptyOfVar("Index");
+                        f.IndexType.IsNullOrEmptyOfVar("IndexType");
+                    });
+                    #endregion
+                    using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
+                    {
+                        var dbIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == biz.UserId).ToList();
+                        biz.Indexs.ForEach(f =>
+                        {
+                            var dbIndex = dbContext.Set<Db_UserIndex>().Where(w => w.Index == f.Index && w.IndexType == f.IndexType).FirstOrDefault();
+                            if (dbIndex == null)
+                                throw new XAIException("未查询到用户索引：" + f.Index);
+                            dbIndex.IsDelete = 1;
+                        });
+                        dbContext.SaveChanges();
+                        return ResCode.交易成功.XAIAckOfBiz(new XAIResIDel());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogModule.Info(ex);
+                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
         }

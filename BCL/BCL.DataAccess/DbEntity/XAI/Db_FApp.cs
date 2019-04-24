@@ -11,12 +11,12 @@ namespace BCL.DataAccess.DbEntity.XAI
     {
         public int Id { get; set; }
         public string AppCode { get; set; }
-        public int AppKind { get; set; }
-        public int AppKey { get; set; }
-        public int AppSecret { get; set; }
+        public string AppKind { get; set; }
+        public string AppKey { get; set; }
+        public string AppSecret { get; set; }
         public int IsDelete { get; set; }
         public DateTime AddDate { get; set; }
-        public DateTime ModDate { get; set; }
+        public DateTime? ModDate { get; set; }
     }
     public class Db_FAppMapper : EntityTypeConfiguration<Db_FApp>
     {

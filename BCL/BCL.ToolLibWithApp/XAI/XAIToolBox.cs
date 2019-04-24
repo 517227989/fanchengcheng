@@ -31,12 +31,12 @@ namespace BCL.ToolLibWithApp.XAI
         /// <param name="resCode"></param>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public static string XAIAckOfBiz<T>(this Enum resCode, string entity)
+        public static string XAIAckOfErr(this Enum resCode, string errMessage = "")
         {
             return new XAIResBase
             {
                 Code = Convert.ToInt32(resCode).ToString(),
-                Desc = resCode.GetType().GetEnumName(Convert.ToInt32(resCode))
+                Desc = resCode.GetType().GetEnumName(Convert.ToInt32(resCode)) + (errMessage != "" ? ":" + errMessage : "")
             }.ToJson();
         }
     }
