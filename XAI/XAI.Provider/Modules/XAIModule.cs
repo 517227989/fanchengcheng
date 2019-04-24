@@ -353,8 +353,6 @@ namespace XAI.Provider.Modules
                         }
                         if (biz.UserInfo != null)
                         {
-                            if (!biz.UserInfo.Index.IsNullOrEmptyOfVar())
-                                dbPatient.Empi = biz.UserInfo.Index;
                             if (!biz.UserInfo.PhoneNo.IsNullOrEmptyOfVar())
                                 dbPatient.PhoneNo = biz.UserInfo.PhoneNo;
                             if (!biz.UserInfo.PaperWorkNo.IsNullOrEmptyOfVar())
@@ -423,9 +421,24 @@ namespace XAI.Provider.Modules
                         var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == biz.UserId && w.IsDetele == 0).FirstOrDefault();
                         if (dbPatient == null)
                             return ResCode.业务错误.XAIAckOfErr("未查询到用户：" + biz.UserId);
-                        var dbFaceList = dbContext.Set<Db_Face>().Where(w => w.UserId == biz.UserId && w.IsDelete == 0).FirstOrDefault();
-
-                        return ResCode.交易成功.XAIAckOfBiz(new XAIResFGet());
+                        var dbFaceList = dbContext.Set<Db_Face>().Where(w => w.UserId == biz.UserId && w.IsDelete == 0).ToList();
+                        var dbUserIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == biz.UserId && w.IsDelete == 0).ToList();
+                        var res = new XAIResFGet()
+                        {
+                            UserInfo = new UserInfo
+                            {
+                                PhoneNo = dbPatient.PhoneNo,
+                                PaperWorkNo = dbPatient.PaperworkNo,
+                                Name = dbPatient.Name,
+                                Sex = dbPatient.Sex,
+                                Nature = dbPatient.Natrue,
+                                Address = dbPatient.Adress,
+                                Birthday = dbPatient.Birthday,
+                            },
+                            Images = dbFaceList.Select(s => new ImageInfo { ImageId = s.ImageId, Kind = s.FaceType }).ToList(),
+                            Indexs = dbUserIndexList.Select(s => new UserIndexInfo { Index = s.Index, IndexType = s.IndexType }).ToList()
+                        };
+                        return ResCode.交易成功.XAIAckOfBiz(res);
                     }
                 }
                 catch (Exception ex)
@@ -460,6 +473,8 @@ namespace XAI.Provider.Modules
                                 if (dbIndex.IsDelete == 0)
                                     throw new XAIException("用户索引已存在，请勿重复添加：" + f.Index);
                                 dbIndex.IsDelete = 0;
+                                dbIndex.ModDate = DateTime.Now;
+                                dbIndex.ModUser = "XAI";
                             }
                             else
                             {
@@ -508,6 +523,8 @@ namespace XAI.Provider.Modules
                             if (dbIndex == null)
                                 throw new XAIException("未查询到用户索引：" + f.Index);
                             dbIndex.IsDelete = 1;
+                            dbIndex.ModDate = DateTime.Now;
+                            dbIndex.ModUser = "XAI";
                         });
                         dbContext.SaveChanges();
                         return ResCode.交易成功.XAIAckOfBiz(new XAIResIDel());

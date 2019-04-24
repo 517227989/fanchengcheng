@@ -18,7 +18,6 @@ namespace BCL.ToolLibWithApp.XAI.Entity
     }
     public class UserInfo
     {
-        public string Index { get; set; }
         public string PhoneNo { get; set; }
         public string PaperWorkNo { get; set; }
         public string Name { get; set; }

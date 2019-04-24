@@ -8,7 +8,7 @@ namespace BCL.ToolLibWithApp.XAI
 {
     public class XAIException : Exception
     {
-        public XAIException(string exMsg)
+        public XAIException(string exMsg) : base(exMsg)
         {
 
         }

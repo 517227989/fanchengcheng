@@ -23,7 +23,9 @@ namespace BCL.ToolLibWithApp.XAI.Entity
         public string UserId { get; set; }
         public string PaperWorkNo { get; set; }
         public string PhoneNo { get; set; }
-        public string Index { get; set; }
+        public UserInfo UserInfo { get; set; }
+        public List<UserIndexInfo> Indexs { get; set; }
+        public List<ImageInfo> Images { get; set; }
     }
     public class XAIBizResBase
     {

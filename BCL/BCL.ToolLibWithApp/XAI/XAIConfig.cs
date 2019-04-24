@@ -168,7 +168,6 @@ namespace BCL.ToolLibWithApp.XAI
                     dbIdentLog.ImageId = _Image.ImageId;
                     dbIdentLog.ImageType = "BASE64";
                     dbIdentLog.UserId = _Res.UserId;
-                    dbIdentLog.Empi = _Res.Index;
                     dbIdentLog.ReturnCode = _Res.Code.ToInt();
                     dbIdentLog.ReturnDesc = _Res.Desc;
                     dbIdentLog.TimeOut = DateTime.Now;

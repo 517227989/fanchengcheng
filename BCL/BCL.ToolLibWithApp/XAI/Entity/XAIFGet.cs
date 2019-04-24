@@ -15,5 +15,6 @@ namespace BCL.ToolLibWithApp.XAI.Entity
     {
         public List<ImageInfo> Images { get; set; }
         public UserInfo UserInfo { get; set; }
+        public List<UserIndexInfo> Indexs { get; set; }
     }
 }
