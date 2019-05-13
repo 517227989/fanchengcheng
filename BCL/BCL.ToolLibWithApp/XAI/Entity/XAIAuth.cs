@@ -15,6 +15,7 @@ namespace BCL.ToolLibWithApp.XAI.Entity
         public string PaperWorkNo { get; set; }
         public string PhoneNo { get; set; }
         public List<string> FaceTokenList { get; set; }
+        public UserInfo UserInfo { get; set; }
     }
     public class UserInfo
     {

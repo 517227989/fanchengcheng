@@ -37,7 +37,7 @@ namespace XAI.Process
         {
             try
             {
-                var url = new Url(String.Format("http://localhost:{0}/xai/", "Port".ConfigValue("990")));
+                var url = new Url(String.Format("http://localhost:{0}/xai/v1/", "Port".ConfigValue("990")));
                 var hc = new HostConfiguration
                 {
                     UrlReservations = new UrlReservations { CreateAutomatically = true },

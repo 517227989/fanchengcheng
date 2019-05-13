@@ -7,6 +7,7 @@ using BCL.ToolLibWithApp.UPP;
 using BCL.ToolLibWithApp.XAI;
 using BCL.ToolLibWithApp.XAI.Entity;
 using Nancy;
+using Nancy.Extensions;
 using Nancy.ModelBinding;
 using System;
 using System.Collections.Concurrent;
@@ -14,6 +15,7 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using XAI.Business;
 
 namespace XAI.Provider.Modules
@@ -65,19 +67,21 @@ namespace XAI.Provider.Modules
                 {
                     _Req.AddAuthLog();
                     var biz = _Req.Args.ToEntity<XAIReqAuth>();
-                    var groupId = "Group_" + _App.AppCode + "_01";
+                    var groupId = "G_" + _App.AppCode + "_01";
                     biz.UserId = groupId + "_" + biz.UserInfo.PaperWorkNo;
                     #region 参数判断
-                    if (biz.Images.Count() != 2 || biz.Images.Where(w => w.Kind == "LIVE").Count() == 0 || biz.Images.Where(w => w.Kind == "IDCARD").Count() == 0)
+                    if (biz.Images.Count() != 2 || biz.Images.Where(w => w.Kind == "LIVE" || w.Kind == "1").Count() == 0 || biz.Images.Where(w => w.Kind == "IDCARD" || w.Kind == "2").Count() == 0)
                         throw new ArgumentNullException("Images对比图片必须为两张，且一张为生活照，一张为证件照");
                     biz.Images.ForEach(f =>
                     {
-                        f.Image.IsNullOrEmptyOfVar("Image");
+                        if (!f.Image.Replace("\r\n", "").IsBase64())
+                            throw new ArgumentNullException("Images必须是BASE64编码");
+                        if (!Regex.IsMatch(f.Image, @"^data:image/.{3,5};base64,"))
+                            throw new ArgumentNullException("Images必须包含头如【data:image/.jpg;base64, 】的BASE64编码");
                         f.Kind.IsNullOrEmptyOfVar("Kind");
                     });
                     if (biz.UserInfo == null)
                         throw new ArgumentNullException("UserInfo用户信息不可为空！");
-                    biz.UserInfo.PhoneNo.IsNullOrEmptyOfVar("UserInfo.PhoneNo");
                     biz.UserInfo.PaperWorkNo.IsNullOrEmptyOfVar("UserInfo.PaperWorkNo");
                     #endregion
                     using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
@@ -146,6 +150,7 @@ namespace XAI.Provider.Modules
                                 };
                                 dbContext.Entry(dbface).State = EntityState.Added;
                             });
+                            resAuth.UserInfo = biz.UserInfo;
                             var res = ResCode.交易成功.XAIAckOfBiz(resAuth);
                             //补充authlog
                             res.ModAuthLog(_Req.RowId, biz.Images, resAuth.AuthId);
@@ -175,9 +180,13 @@ namespace XAI.Provider.Modules
                     _Req.AddFindLog();
                     var biz = _Req.Args.ToEntity<XAIReqFind>();
                     #region 参数判断
-                    biz.Image.IsNullOrEmptyOfVar("Image");
+                    var xxx = this.Request.Body;
+                    if (!biz.Image.Replace("\r\n", "").IsBase64())
+                        throw new ArgumentNullException("Image必须是BASE64编码");
+                    if (!Regex.IsMatch(biz.Image, @"^^data:image/.{3,5};base64,"))
+                        throw new ArgumentNullException("Image必须包含头如【data:image/.jpg;base64, 】的BASE64编码");
                     #endregion
-                    var groupId = "Group_" + _App.AppCode + "_01";
+                    var groupId = "G_" + _App.AppCode + "_01";
                     using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
                     {
                         var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = biz.Image };
@@ -188,6 +197,15 @@ namespace XAI.Provider.Modules
                         var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == resFind.UserId && w.IsDetele == 0).AsNoTracking().FirstOrDefault();
                         if (dbPatient == null)
                             return ResCode.业务错误.XAIAckOfErr("未查找到用户：" + resFind.UserId);
+                        resFind.PaperworkNo = dbPatient.PaperworkNo;
+                        resFind.UserInfo = new UserInfo
+                        {
+                            Name = dbPatient.Name,
+                            Sex = dbPatient.Sex,
+                            Nature = dbPatient.Natrue,
+                            Address = dbPatient.Adress,
+                            Birthday = dbPatient.Birthday
+                        };
                         var dbUserIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == resFind.UserId && w.IsDelete == 0).ToList();
                         resFind.Indexs = dbUserIndexList.Select(s => new UserIndexInfo { Index = s.Index, IndexType = s.IndexType }).ToList();
                         var res = ResCode.交易成功.XAIAckOfBiz(resFind);
@@ -199,6 +217,8 @@ namespace XAI.Provider.Modules
                 catch (Exception ex)
                 {
                     LogModule.Info(ex);
+                    if (ex.HResult == 7101)
+                        return ResCode.刷脸业务错误.XAIAckOfErr(ex.Message);
                     return ResCode.业务错误.XAIAckOfErr(ex.Message);
                 }
             };
@@ -208,13 +228,16 @@ namespace XAI.Provider.Modules
                 {
                     var biz = _Req.Args.ToEntity<XAIReqFAdd>();
                     #region 参数判断
-                    biz.Image.IsNullOrEmptyOfVar("Image");
+                    if (!biz.Image.Replace("\r\n", "").IsBase64())
+                        throw new ArgumentNullException("Image必须是BASE64编码");
+                    if (!Regex.IsMatch(biz.Image, @"^^data:image/.{3,5};base64,"))
+                        throw new ArgumentNullException("Image必须包含头如【data:image/.jpg;base64, 】的BASE64编码");
                     if (biz.UserInfo == null)
                         throw new ArgumentNullException("UserInfo用户信息不可为空！");
                     biz.UserInfo.PhoneNo.IsNullOrEmptyOfVar("UserInfo.PhoneNo");
                     biz.UserInfo.PaperWorkNo.IsNullOrEmptyOfVar("UserInfo.PaperWorkNo");
                     #endregion
-                    biz.GroupId = "Group_" + _App.AppCode + "_01";
+                    biz.GroupId = "G_" + _App.AppCode + "_01";
                     biz.UserId = biz.GroupId + "_" + biz.UserInfo.PaperWorkNo;
                     //插入成功标志
                     var FaceToken = "";
@@ -339,6 +362,10 @@ namespace XAI.Provider.Modules
                         biz.GroupId = dbface.GroupId;
                         if (!biz.Image.IsNullOrEmptyOfVar())
                         {
+                            if (!biz.Image.Replace("\r\n", "").IsBase64())
+                                throw new ArgumentNullException("Image必须是BASE64编码");
+                            if (!Regex.IsMatch(biz.Image, @"^^data:image/.{3,5};base64,"))
+                                throw new ArgumentNullException("Image必须包含头如【data:image/.jpg;base64, 】的BASE64编码");
                             var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = biz.Image };
                             dbContext.Entry(dbImage).State = EntityState.Added;
                             var resFMod = _Business.FMod(biz);
@@ -391,7 +418,7 @@ namespace XAI.Provider.Modules
                             return ResCode.业务错误.XAIAckOfErr("未查询到用户：" + biz.UserId);
                         var reqFDel = new XAIReqFDel()
                         {
-                            GroupId = "Group_" + _App.AppCode + "_01",
+                            GroupId = "G_" + _App.AppCode + "_01",
                             UserId = biz.UserId
                         };
                         var resFDel = _Business.FDel(reqFDel);
@@ -438,6 +465,7 @@ namespace XAI.Provider.Modules
                             Images = dbFaceList.Select(s => new ImageInfo { ImageId = s.ImageId, Kind = s.FaceType }).ToList(),
                             Indexs = dbUserIndexList.Select(s => new UserIndexInfo { Index = s.Index, IndexType = s.IndexType }).ToList()
                         };
+                        //var resGet = _Business.FGet(biz);
                         return ResCode.交易成功.XAIAckOfBiz(res);
                     }
                 }
@@ -467,11 +495,12 @@ namespace XAI.Provider.Modules
                         var dbIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == biz.UserId).ToList();
                         biz.Indexs.ForEach(f =>
                         {
-                            var dbIndex = dbIndexList.Where(w => w.Index == f.Index && w.IndexType == f.IndexType).FirstOrDefault();
+                            var dbIndex = dbIndexList.Where(w => w.IndexType == f.IndexType).FirstOrDefault();
                             if (dbIndex != null)
                             {
-                                if (dbIndex.IsDelete == 0)
+                                if (dbIndex.IsDelete == 0 && dbIndex.Index == f.Index)
                                     throw new XAIException("用户索引已存在，请勿重复添加：" + f.Index);
+                                dbIndex.Index = f.Index;
                                 dbIndex.IsDelete = 0;
                                 dbIndex.ModDate = DateTime.Now;
                                 dbIndex.ModUser = "XAI";
@@ -570,7 +599,10 @@ namespace XAI.Provider.Modules
         /// </summary>
         protected void InvalidAppCode()
         {
-            _Req = this.Bind<XAIReqBase>();
+            if (this.Request.Headers.ContentType == "application/json")
+                _Req = this.Request.Body.AsString().ToEntity<XAIReqBase>();
+            else
+                _Req = this.Bind<XAIReqBase>();
             LogModule.Info("XAI->Req--->入参:" + _Req.ToJson());
 
             if (_Req.AppCode.IsNullOrEmptyOfVar())
