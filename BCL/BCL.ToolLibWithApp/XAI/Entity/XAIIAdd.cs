@@ -10,6 +10,7 @@ namespace BCL.ToolLibWithApp.XAI.Entity
     {
         public string UserId { get; set; }
         public List<UserIndexInfo> Indexs { get; set; }
+        public string HospitalId { get; set; }
     }
     public class XAIResIAdd : XAIBizResBase
     {

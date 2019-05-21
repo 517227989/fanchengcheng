@@ -86,14 +86,15 @@ namespace XAI.Provider.Modules
                     #endregion
                     using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
                     {
-                        var patient = dbContext.Set<Db_Patient>().Where(w => w.PaperworkNo == biz.UserInfo.PaperWorkNo && w.IsDetele == 0).AsNoTracking().FirstOrDefault();
-                        if (patient != null)
+                        var patientList = dbContext.Set<Db_Patient>().Where(w => w.PaperworkNo == biz.UserInfo.PaperWorkNo && w.IsDetele == 0).AsNoTracking().FirstOrDefault();
+                        if (patientList != null)
                             return ResCode.业务错误.XAIAckOfErr("该用户已认证，请勿重复认证!");
                         var authlog = dbContext.Set<Db_AuthLog>().Where(w => w.Id == _Req.RowId).FirstOrDefault();
                         if (authlog == null)
                             return ResCode.业务错误.XAIAckOfErr("not found authlog,id=" + _Req.RowId);
                         //人脸对比
                         var resAuth = _Business.Auth(biz);
+
                         //插一条人员表
                         var dbPatient = new Db_Patient()
                         {
@@ -113,44 +114,42 @@ namespace XAI.Provider.Modules
                         dbContext.Entry(dbPatient).State = EntityState.Added;
                         try
                         {
+                            var IDCARDImage = biz.Images.Where(w => w.Kind == "IDCARD" || w.Kind == "2").FirstOrDefault();
                             //循环图片插入图片和人脸表
-                            biz.Images.ForEach(f =>
+                            var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = IDCARDImage.Image };
+                            dbContext.Entry(dbImage).State = EntityState.Added;
+                            var reqFAdd = new XAIReqFAdd()
                             {
-                                var dbImage = new Db_Image() { ImageId = Snowflake.Instance().GetId().ToString(), Image = f.Image };
-                                f.ImageId = dbImage.ImageId;
-                                dbContext.Entry(dbImage).State = EntityState.Added;
-                                var reqFAdd = new XAIReqFAdd()
-                                {
-                                    UserId = biz.UserId,
-                                    UserInfo = biz.UserInfo,
-                                    Image = f.Image,
-                                    GroupId = groupId
-                                };
-                                //人脸新增
-                                var resFAdd = _Business.FAdd(reqFAdd);
-                                var dbface = new Db_Face()
-                                {
-                                    AuthId = resFAdd.AuthId,
-                                    AppCode = _App.AppCode,
-                                    ImageId = dbImage.ImageId,
-                                    //暂写死BASE64
-                                    ImageType = "BASE64",
-                                    FaceType = f.Kind,
-                                    FaceToken = resFAdd.FaceToken,
-                                    GroupId = groupId,
-                                    UserId = biz.UserId,
-                                    UserInfo = biz.UserInfo.ToJson(),
-                                    LocationLeft = resFAdd.LocationLeft,
-                                    LocationTop = resFAdd.LocationTop,
-                                    LocationHeight = resFAdd.LocationHeight,
-                                    LocationWidth = resFAdd.LocationWidth,
-                                    LocationRotaion = resFAdd.LocationRotaion,
-                                    IsDelete = 0,
-                                    AddDate = DateTime.Now,
-                                };
-                                dbContext.Entry(dbface).State = EntityState.Added;
-                            });
+                                UserId = biz.UserId,
+                                UserInfo = biz.UserInfo,
+                                Image = IDCARDImage.Image,
+                                GroupId = groupId
+                            };
+                            //人脸新增
+                            var resFAdd = _Business.FAdd(reqFAdd);
+                            var dbface = new Db_Face()
+                            {
+                                AuthId = resFAdd.AuthId,
+                                AppCode = _App.AppCode,
+                                ImageId = dbImage.ImageId,
+                                //暂写死BASE64
+                                ImageType = "BASE64",
+                                FaceType = IDCARDImage.Kind,
+                                FaceToken = resFAdd.FaceToken,
+                                GroupId = groupId,
+                                UserId = biz.UserId,
+                                UserInfo = biz.UserInfo.ToJson(),
+                                LocationLeft = resFAdd.LocationLeft,
+                                LocationTop = resFAdd.LocationTop,
+                                LocationHeight = resFAdd.LocationHeight,
+                                LocationWidth = resFAdd.LocationWidth,
+                                LocationRotaion = resFAdd.LocationRotaion,
+                                IsDelete = 0,
+                                AddDate = DateTime.Now,
+                            };
+                            dbContext.Entry(dbface).State = EntityState.Added;
                             resAuth.UserInfo = biz.UserInfo;
+                            resAuth.UserInfo.PhoneNo = biz.UserInfo.PhoneNo.IsNullOrEmptyOfVar() ? "" : biz.UserInfo.PhoneNo;
                             var res = ResCode.交易成功.XAIAckOfBiz(resAuth);
                             //补充authlog
                             res.ModAuthLog(_Req.RowId, biz.Images, resAuth.AuthId);
@@ -179,6 +178,7 @@ namespace XAI.Provider.Modules
                 {
                     _Req.AddFindLog();
                     var biz = _Req.Args.ToEntity<XAIReqFind>();
+                    biz.HospitalId = biz.HospitalId.IsNullOrEmptySetVar("0000");
                     #region 参数判断
                     var xxx = this.Request.Body;
                     if (!biz.Image.Replace("\r\n", "").IsBase64())
@@ -197,16 +197,17 @@ namespace XAI.Provider.Modules
                         var dbPatient = dbContext.Set<Db_Patient>().Where(w => w.UserId == resFind.UserId && w.IsDetele == 0).AsNoTracking().FirstOrDefault();
                         if (dbPatient == null)
                             return ResCode.业务错误.XAIAckOfErr("未查找到用户：" + resFind.UserId);
-                        resFind.PaperworkNo = dbPatient.PaperworkNo;
                         resFind.UserInfo = new UserInfo
                         {
+                            PhoneNo = dbPatient.PhoneNo.IsNullOrEmptyOfVar() ? "" : dbPatient.PhoneNo,
+                            PaperWorkNo = dbPatient.PaperworkNo,
                             Name = dbPatient.Name,
                             Sex = dbPatient.Sex,
                             Nature = dbPatient.Natrue,
                             Address = dbPatient.Adress,
                             Birthday = dbPatient.Birthday
                         };
-                        var dbUserIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == resFind.UserId && w.IsDelete == 0).ToList();
+                        var dbUserIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.HospitalId == biz.HospitalId && w.UserId == resFind.UserId && w.IsDelete == 0).ToList();
                         resFind.Indexs = dbUserIndexList.Select(s => new UserIndexInfo { Index = s.Index, IndexType = s.IndexType }).ToList();
                         var res = ResCode.交易成功.XAIAckOfBiz(resFind);
                         //补充identlog
@@ -480,6 +481,7 @@ namespace XAI.Provider.Modules
                 try
                 {
                     var biz = _Req.Args.ToEntity<XAIReqIAdd>();
+                    biz.HospitalId = biz.HospitalId.IsNullOrEmptySetVar("0000");
                     #region 参数判断
                     biz.UserId.IsNullOrEmptyOfVar("UserId");
                     if (biz.Indexs == null)
@@ -492,7 +494,12 @@ namespace XAI.Provider.Modules
                     #endregion
                     using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
                     {
-                        var dbIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == biz.UserId).ToList();
+                        var dbIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.HospitalId == biz.HospitalId && w.UserId == biz.UserId).ToList();
+                        var IndexCount = "IndexCount".ConfigValue("2").ToInt();
+                        if (biz.Indexs.Count() > IndexCount || (dbIndexList.Count() + biz.Indexs.Count()) > IndexCount)
+                        {
+                            throw new XAIException("无法添加，用户索引添加索引超过最大限：" + IndexCount.ToString());
+                        }
                         biz.Indexs.ForEach(f =>
                         {
                             var dbIndex = dbIndexList.Where(w => w.IndexType == f.IndexType).FirstOrDefault();
@@ -500,7 +507,6 @@ namespace XAI.Provider.Modules
                             {
                                 if (dbIndex.IsDelete == 0 && dbIndex.Index == f.Index)
                                     throw new XAIException("用户索引已存在，请勿重复添加：" + f.Index);
-                                dbIndex.Index = f.Index;
                                 dbIndex.IsDelete = 0;
                                 dbIndex.ModDate = DateTime.Now;
                                 dbIndex.ModUser = "XAI";
@@ -509,6 +515,7 @@ namespace XAI.Provider.Modules
                             {
                                 dbIndex = new Db_UserIndex()
                                 {
+                                    HospitalId = biz.HospitalId,
                                     UserId = biz.UserId,
                                     Index = f.Index,
                                     IndexType = f.IndexType,
@@ -529,42 +536,43 @@ namespace XAI.Provider.Modules
                 }
             };
             Post["/IDel"] = o =>
-            {
-                try
                 {
-                    var biz = _Req.Args.ToEntity<XAIReqIDel>();
-                    #region 参数判断
-                    biz.UserId.IsNullOrEmptyOfVar("UserId");
-                    if (biz.Indexs == null)
-                        throw new ArgumentNullException("Indexs用户索引信息不可为空！");
-                    biz.Indexs.ForEach(f =>
+                    try
                     {
-                        f.Index.IsNullOrEmptyOfVar("Index");
-                        f.IndexType.IsNullOrEmptyOfVar("IndexType");
-                    });
-                    #endregion
-                    using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
-                    {
-                        var dbIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.UserId == biz.UserId).ToList();
+                        var biz = _Req.Args.ToEntity<XAIReqIDel>();
+                        biz.HospitalId = biz.HospitalId.IsNullOrEmptySetVar("0000");
+                        #region 参数判断
+                        biz.UserId.IsNullOrEmptyOfVar("UserId");
+                        if (biz.Indexs == null)
+                            throw new ArgumentNullException("Indexs用户索引信息不可为空！");
                         biz.Indexs.ForEach(f =>
+                                {
+                                    f.Index.IsNullOrEmptyOfVar("Index");
+                                    f.IndexType.IsNullOrEmptyOfVar("IndexType");
+                                });
+                        #endregion
+                        using (var dbContext = new DbContextContainer(DbKind.MySql, DbName.FACEDb)._DataAccess)
                         {
-                            var dbIndex = dbContext.Set<Db_UserIndex>().Where(w => w.Index == f.Index && w.IndexType == f.IndexType).FirstOrDefault();
-                            if (dbIndex == null)
-                                throw new XAIException("未查询到用户索引：" + f.Index);
-                            dbIndex.IsDelete = 1;
-                            dbIndex.ModDate = DateTime.Now;
-                            dbIndex.ModUser = "XAI";
-                        });
-                        dbContext.SaveChanges();
-                        return ResCode.交易成功.XAIAckOfBiz(new XAIResIDel());
+                            var dbIndexList = dbContext.Set<Db_UserIndex>().Where(w => w.HospitalId == biz.HospitalId && w.UserId == biz.UserId).ToList();
+                            biz.Indexs.ForEach(f =>
+                                            {
+                                                var dbIndex = dbContext.Set<Db_UserIndex>().Where(w => w.Index == f.Index && w.IndexType == f.IndexType).FirstOrDefault();
+                                                if (dbIndex == null)
+                                                    throw new XAIException("未查询到用户索引：" + f.Index);
+                                                dbIndex.IsDelete = 1;
+                                                dbIndex.ModDate = DateTime.Now;
+                                                dbIndex.ModUser = "XAI";
+                                            });
+                            dbContext.SaveChanges();
+                            return ResCode.交易成功.XAIAckOfBiz(new XAIResIDel());
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    LogModule.Info(ex);
-                    return ResCode.业务错误.XAIAckOfErr(ex.Message);
-                }
-            };
+                    catch (Exception ex)
+                    {
+                        LogModule.Info(ex);
+                        return ResCode.业务错误.XAIAckOfErr(ex.Message);
+                    }
+                };
         }
         /// <summary>
         /// 初始化
@@ -599,12 +607,34 @@ namespace XAI.Provider.Modules
         /// </summary>
         protected void InvalidAppCode()
         {
-            if (this.Request.Headers.ContentType == "application/json")
-                _Req = this.Request.Body.AsString().ToEntity<XAIReqBase>();
+            if (this.Request.Headers.ContentType == "application/json" || this.Request.Headers.ContentType == "application/json;")
+            {
+                var body = this.Request.Body.AsString();
+                LogModule.Info("XAI->Req--->入参:" + body);
+                //支持Json传输 Args传对象
+                try
+                {
+                    var _ReqJson = body.ToEntity<XAIReqBaseJson>();
+                    _Req = new XAIReqBase()
+                    {
+                        AppCode = _ReqJson.AppCode,
+                        Channel = _ReqJson.Channel,
+                        Args = _ReqJson.Args.ToJson(),
+                        Kind = _ReqJson.Kind,
+                        ReqTime = _ReqJson.ReqTime,
+                        TermCode = _ReqJson.TermCode,
+                    };
+                }
+                catch
+                {
+                    _Req = body.ToEntity<XAIReqBase>();
+                }
+            }
             else
+            {
                 _Req = this.Bind<XAIReqBase>();
-            LogModule.Info("XAI->Req--->入参:" + _Req.ToJson());
-
+                LogModule.Info("XAI->Req--->入参:" + _Req.ToJson());
+            }
             if (_Req.AppCode.IsNullOrEmptyOfVar())
                 _Req.AppCode = "0000";
             else
@@ -640,7 +670,7 @@ namespace XAI.Provider.Modules
                         {
                             var res = re.ToEntity<XAIResBase>();
                             var resMsg = res.ToJson();
-                            LogModule.Info("UPP->Res--->出参:" + resMsg);
+                            LogModule.Info("XAI->Res--->出参:" + resMsg);
                             o.Response.Contents = (x) =>
                             {
                                 var resBytes = Encoding.UTF8.GetBytes(resMsg);

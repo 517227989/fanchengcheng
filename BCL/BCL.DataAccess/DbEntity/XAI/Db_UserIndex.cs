@@ -14,6 +14,10 @@ namespace BCL.DataAccess.DbEntity.XAI
     {
         public int Id { get; set; }
         /// <summary>
+        /// 医院Id
+        /// </summary>
+        public string HospitalId { get; set; }
+        /// <summary>
         /// 用户Id
         /// </summary>
         public string UserId { get; set; }

@@ -77,12 +77,20 @@ namespace XAI.Business
                 image_list.Add(image);
             });
             LogModule.Info("XAI->BIDU:Auth--->入参：" + reqData.ToJson());
-            var resJson = client.Match(JArray.Parse(image_list.ToJson())).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.Match(JArray.Parse(image_list.ToJson())).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:Auth--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
                 throw new XAIException(7100, typeof(BIDUErrorCodeEnum).GetEnumName(res.error_code.ToInt()));
-            
+
             if (res.result.score < 80)
                 throw new XAIException(7101, "图片对比阈值过低，对比失败！");
             return new XAIResAuth()
@@ -102,7 +110,15 @@ namespace XAI.Business
         public XAIResFind Find(XAIReqFind reqData)
         {
             LogModule.Info("XAI->BIDU:Find--->入参：" + reqData.ToJson());
-            var resJson = client.Search(reqData.Image.Split(new string[] { ";base64," }, StringSplitOptions.RemoveEmptyEntries)[1], "BASE64", reqData.GroupId).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.Search(reqData.Image.Split(new string[] { ";base64," }, StringSplitOptions.RemoveEmptyEntries)[1], "BASE64", reqData.GroupId).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:Find--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -124,7 +140,15 @@ namespace XAI.Business
         {
             LogModule.Info("XAI->BIDU:FAdd--->入参：" + reqData.ToJson());
             var options = new Dictionary<string, object>() { { "user_info", reqData.UserInfo.ToJson() } };
-            var resJson = client.UserAdd(reqData.Image.Split(new string[] { ";base64," }, StringSplitOptions.RemoveEmptyEntries)[1], "BASE64", reqData.GroupId, reqData.UserId, options).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.UserAdd(reqData.Image.Split(new string[] { ";base64," }, StringSplitOptions.RemoveEmptyEntries)[1], "BASE64", reqData.GroupId, reqData.UserId, options).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:FAdd--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -148,7 +172,15 @@ namespace XAI.Business
         public XAIResFMod FMod(XAIReqFMod reqData)
         {
             LogModule.Info("XAI->BIDU:FMod--->入参：" + reqData.ToJson());
-            var resJson = client.UserUpdate(reqData.Image.Split(new string[] { ";base64," }, StringSplitOptions.RemoveEmptyEntries)[1], "BASE64", reqData.GroupId, reqData.UserId).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.UserUpdate(reqData.Image.Split(new string[] { ";base64," }, StringSplitOptions.RemoveEmptyEntries)[1], "BASE64", reqData.GroupId, reqData.UserId).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:FMod--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -165,7 +197,15 @@ namespace XAI.Business
         public XAIResFDel FDel(XAIReqFDel reqData)
         {
             LogModule.Info("XAI->BIDU:FDel--->入参：" + reqData.ToJson());
-            var resJson = client.UserDelete(reqData.GroupId, reqData.UserId).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.UserDelete(reqData.GroupId, reqData.UserId).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:FDel--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -182,7 +222,15 @@ namespace XAI.Business
         public XAIResFGet FGet(XAIReqFGet reqData)
         {
             LogModule.Info("XAI->BIDU:FGet--->入参：" + reqData.ToJson());
-            var resJson = client.UserGet(reqData.UserId, reqData.GroupId).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.UserGet(reqData.UserId, reqData.GroupId).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:FGet--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -200,7 +248,15 @@ namespace XAI.Business
         public XAIResAddGroup AddGroup(XAIReqAddGroup reqData)
         {
             LogModule.Info("XAI->BIDU:AddGroup--->入参：" + reqData.ToJson());
-            var resJson = client.GroupAdd(reqData.GroupId).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.GroupAdd(reqData.GroupId).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:AddGroup--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -217,7 +273,15 @@ namespace XAI.Business
         public XAIResDeleteGroup DeleteGroup(XAIReqDeleteGroup reqData)
         {
             LogModule.Info("XAI->BIDU:DeleteGroup--->入参：" + reqData.ToJson());
-            var resJson = client.GroupDelete(reqData.GroupId).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.GroupDelete(reqData.GroupId).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:DeleteGroup--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -234,7 +298,15 @@ namespace XAI.Business
         public XAIResGetUserList GetUserList(XAIReqGetUserList reqData)
         {
             LogModule.Info("XAI->BIDU:GetUserList--->入参：" + reqData.ToJson());
-            var resJson = client.GroupGetusers(reqData.GroupId).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.GroupGetusers(reqData.GroupId).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:GetUserList--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)
@@ -252,7 +324,15 @@ namespace XAI.Business
         public XAIResDeleteFace DeleteFace(XAIReqDeleteFace reqData)
         {
             LogModule.Info("XAI->BIDU:DeleteFace--->入参：" + reqData.ToJson());
-            var resJson = client.FaceDelete(reqData.GroupId, reqData.UserId, reqData.FaceToken).ToJson();
+            string resJson;
+            try
+            {
+                resJson = client.FaceDelete(reqData.GroupId, reqData.UserId, reqData.FaceToken).ToJson();
+            }
+            catch (Exception ex)
+            {
+                throw new XAIException(7100, "请求人脸识别服务异常，请重试！" + ex.Message);
+            }
             LogModule.Info("XAI->BIDU:DeleteFace--->出参：" + resJson);
             var res = resJson.ToEntity<BIDUResponse>();
             if (res.error_code != 0)

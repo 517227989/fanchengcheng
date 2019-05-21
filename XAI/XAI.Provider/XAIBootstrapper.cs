@@ -2,6 +2,7 @@
 using BCL.ToolLib.Enums;
 using BCL.ToolLib.Modules;
 using BCL.ToolLibWithApp.UPP.Entity;
+using BCL.ToolLibWithApp.XAI.Entity;
 using Nancy;
 using Nancy.Bootstrapper;
 using Nancy.Session;
@@ -23,7 +24,7 @@ namespace XAI.Provider
             pipelines.BeforeRequest += (x) =>
             {
                 LogModule.Info("---------------------------------------I'm Split Line---------------------------------------");
-                LogModule.Info("UPP->Req--->Url:" + x.Request.Url);
+                LogModule.Info("XAI->Req--->Url:" + x.Request.Url);
                 return null;
             };
 
@@ -39,13 +40,13 @@ namespace XAI.Provider
         }
         private dynamic Error(NancyContext ctx, Exception ex)
         {
-            var exMsg = new UPPResBase()
+            var exMsg = new XAIResBase()
             {
-                ResCode = ((int)ResCode.交易异常).ToString(),
-                ResMsg = ex.Message + (ex.InnerException == null ? "" : ex.InnerException.Message)
+                Code = ((int)ResCode.交易异常).ToString(),
+                Desc = ex.Message + (ex.InnerException == null ? "" : ex.InnerException.Message)
             }.ToJson();
 
-            LogModule.Info("UPP->Err--->异常:" + exMsg);
+            LogModule.Info("XAI->Err--->异常:" + exMsg);
 
             return new Response()
             {
